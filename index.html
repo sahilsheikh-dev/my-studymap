@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOps & SRE Learning Roadmap</title>
+  <style>
+    /* ── Original styles preserved exactly ── */
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font-sans,system-ui,sans-serif);background:transparent;padding:10px}
+    .root{padding:1rem 0}
+    .top-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center}
+    .nav-btn{font-size:12px;font-weight:500;padding:5px 11px;border-radius:99px;border:0.5px solid var(--color-border-secondary,#ccc);background:var(--color-background-primary,#fff);color:var(--color-text-secondary,#666);cursor:pointer;transition:all 0.15s;white-space:nowrap}
+    .nav-btn:hover{background:var(--color-background-secondary,#f5f5f5);color:var(--color-text-primary,#111)}
+    .nav-btn.active{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+    .phase-label{font-size:11px;font-weight:500;color:var(--color-text-secondary,#666);padding:0 4px}
+    .sec{display:none}.sec.visible{display:block}
+    .topic-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:1.5rem}
+    .topic-title{font-size:22px;font-weight:500;color:var(--color-text-primary,#111)}
+    .topic-why{font-size:13px;color:var(--color-text-secondary,#666);line-height:1.6;max-width:600px;margin-top:4px}
+    .badges{display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
+    .badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px}
+    .b-foundation{background:#E1F5EE;color:#085041}
+    .b-devops{background:#E6F1FB;color:#0C447C}
+    .b-cloud{background:#FAEEDA;color:#633806}
+    .b-platform{background:#EEEDFE;color:#3C3489}
+    .b-observability{background:#FAECE7;color:#993C1D}
+    .b-scripting{background:#EAF3DE;color:#27500A}
+    .b-sre{background:#FBEAF0;color:#72243E}
+    .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-bottom:16px}
+    .card{background:var(--color-background-primary,#fff);border:1px solid #010101;border-radius:12px;padding:1rem 1.25rem}
+    .card-title{font-size:13px;font-weight:500;color:var(--color-text-secondary,#666);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+    .card-body{font-size:13px;color:var(--color-text-primary,#111);line-height:1.7}
+    .card-body ul{padding-left:1rem}
+    .card-body li{margin-bottom:3px}
+    .accent-bar{border:1px solid;border-left:2px solid;border-radius:0;padding:8px 12px;font-size:13px;color:var(--color-text-primary,#111);line-height:1.65;margin-bottom:12px}
+    .accent-blue{border-color:#378ADD;background:#E6F1FB}
+    .accent-green{border-color:#639922;background:#EAF3DE}
+    .accent-amber{border-color:#BA7517;background:#FAEEDA}
+    .accent-red{border-color:#E24B4A;background:#FCEBEB}
+    .accent-purple{border-color:#7F77DD;background:#EEEDFE}
+    .stages{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+    .stage-card{border-radius:12px;padding:12px 14px;border:1px solid #010101}
+    .stage-label{font-size:11px;font-weight:500;margin-bottom:6px}
+    .stage-body{font-size:12px;color:var(--color-text-primary,#111);line-height:1.65}
+    .stage-body ul{padding-left:0.9rem}
+    .stage-bgn{background:#E1F5EE}.stage-bgn .stage-label{color:#085041}
+    .stage-int{background:#FAEEDA}.stage-int .stage-label{color:#633806}
+    .stage-adv{background:#EEEDFE}.stage-adv .stage-label{color:#3C3489}
+    .flow-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+    .flow-chip{font-size:12px;padding:4px 10px;border-radius:99px;border:0.5px solid #ccc;background:#f5f5f5;color:#111;white-space:nowrap}
+    .flow-arrow{font-size:14px;color:#666}
+    .ready-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;margin-bottom:16px}
+    .ready-item{font-size:13px;padding:8px 12px;border-radius:8px;background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5}
+    .divider{height:0.5px;background:#ddd;margin:16px 0}
+    .nav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+    .topic-nav-card{background:var(--color-background-primary,#fff);border:0.5px solid #ddd;border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color .15s}
+    .topic-nav-card:hover{border-color:#999}
+    .tnc-num{font-size:11px;color:#666;margin-bottom:2px}
+    .tnc-name{font-size:13px;font-weight:500;color:#111}
+    .tnc-phase{font-size:11px;margin-top:4px}
+
+    /* ── Progress & Checkbox styles ── */
+    .progress-bar-wrap{height:4px;background:#e5e5e5;border-radius:99px;margin-bottom:16px;overflow:hidden}
+    .progress-bar-fill{height:100%;background:#3C3489;border-radius:99px;transition:width .3s}
+    .progress-label{font-size:11px;color:#666;margin-bottom:4px}
+    .check-item{display:flex;align-items:flex-start;gap:8px;padding:4px 0;cursor:pointer;user-select:none}
+    .check-item input[type=checkbox]{margin-top:2px;accent-color:#3C3489;cursor:pointer;flex-shrink:0;width:14px;height:14px}
+    .check-item.done span{text-decoration:line-through;color:#aaa}
+    .ready-item{display:flex;align-items:flex-start;gap:8px;cursor:pointer;user-select:none}
+    .ready-item input[type=checkbox]{margin-top:2px;accent-color:#085041;cursor:pointer;flex-shrink:0;width:14px;height:14px}
+    .ready-item.done span{text-decoration:line-through;opacity:.5}
+    .global-progress{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;padding:10px 14px;background:var(--color-background-primary,#fff);border:0.5px solid #ddd;border-radius:12px}
+    .gp-label{font-size:12px;color:#666;white-space:nowrap}
+    .gp-bar-wrap{flex:1;height:6px;background:#e5e5e5;border-radius:99px;overflow:hidden}
+    .gp-bar-fill{height:100%;background:#3C3489;border-radius:99px;transition:width .3s}
+    .gp-count{font-size:12px;color:#3C3489;font-weight:500;white-space:nowrap}
+    .topic-nav-card .tnc-prog{font-size:10px;color:#3C3489;margin-top:3px}
+  </style>
+</head>
+<body>
+<div class="root">
+  <div class="top-bar" id="topbar"></div>
+  <div id="content"></div>
+</div>
+
+<script src="data.js"></script>
+  <script>
+/* ── RENDERING ── */
+
+function renderOverview() {
+  const phases = [
+    {
+      name:"Phase 1: Foundation (4–8 weeks)",
+      color:"#E1F5EE", tc:"#085041",
+      topics:["Linux","Networking","Bash Scripting","Git & GitHub"],
+      why:"These are the prerequisites for literally everything else. No exceptions."
+    },
+    {
+      name:"Phase 2: Platform core (8–16 weeks)",
+      color:"#EEEDFE", tc:"#3C3489",
+      topics:["CI/CD Fundamentals","Docker","Kubernetes","Artifact Registries","GitHub Actions","Jenkins","GitLab CI","Terraform","Ansible","Secrets Management"],
+      why:"The tools you use daily as a DevOps engineer. CI/CD concepts before tools. Docker before K8s. Terraform after cloud basics. Secrets management last — depends on all other platform tools."
+    },
+    {
+      name:"Phase 3: Cloud (parallel with Phase 2, weeks 6+)",
+      color:"#FAEEDA", tc:"#633806",
+      topics:["AWS (primary)","Azure","GCP"],
+      why:"Learn AWS first, deeply. Then Azure and GCP as secondary platforms. Cloud enables and underpins all Platform tools."
+    },
+    {
+      name:"Phase 4: Observability (weeks 12+)",
+      color:"#FAECE7", tc:"#993C1D",
+      topics:["SRE Fundamentals","Prometheus","Grafana","ELK Stack"],
+      why:"You need running services to observe. SRE principles first — they define what to measure and why. Then the tools."
+    },
+    {
+      name:"Phase 5: Scripting (2–3 weeks)",
+      color:"#EAF3DE", tc:"#27500A",
+      topics:["Python Scripting"],
+      why:"Python is learned continuously alongside other topics as complexity increases. Capstone skill that ties everything together."
+    }
+  ];
+
+  let html = `<div style="display:grid;gap:12px;margin-bottom:24px">`;
+  phases.forEach(p => {
+    html += `<div style="background:${p.color};border-radius:12px;padding:1rem 1.25rem">
+      <div style="font-size:14px;font-weight:500;color:${p.tc};margin-bottom:4px">${p.name}</div>
+      <div style="font-size:12px;color:${p.tc};margin-bottom:8px;opacity:.8">${p.why}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${p.topics.map(t=>`<span style="font-size:12px;padding:3px 8px;border-radius:99px;background:rgba(255,255,255,0.5);color:${p.tc}">${t}</span>`).join('')}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  html += `<div style="font-size:14px;font-weight:500;color:#111;margin-bottom:12px">How it all connects in production</div>`;
+  const flow = [
+    "Developer pushes code","GitHub triggers CI","GitHub Actions runs tests + builds Docker image",
+    "Image pushed to ECR/Nexus","Helm chart updated with new image tag","Argo CD (GitOps) detects change",
+    "Kubernetes pulls image + rolling deploy","Prometheus scrapes new pods",
+    "Grafana shows deployment annotation","ELK receives app logs","Alert fires if error rate spikes"
+  ];
+  html += `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:24px">`;
+  flow.forEach((f,i) => {
+    html += `<span style="font-size:12px;padding:4px 10px;border-radius:99px;background:#f5f5f5;border:0.5px solid #ccc;color:#111">${f}</span>`;
+    if(i < flow.length-1) html += `<span style="color:#666;font-size:13px">→</span>`;
+  });
+  html += `</div>`;
+
+  html += `<div style="font-size:14px;font-weight:500;color:#111;margin-bottom:12px">Jump to a topic</div>`;
+  html += `<div class="nav-grid">`;
+  const phaseColors = {foundation:"#085041",platform:"#3C3489",cloud:"#633806",observability:"#993C1D",scripting:"#27500A"};
+  TOPICS.filter(t=>t.id!=="overview").forEach((t,i) => {
+    html += `<div class="topic-nav-card" onclick="showTopic('${t.id}')">
+      <div class="tnc-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="tnc-name">${t.label}</div>
+      <div class="tnc-phase" style="color:${phaseColors[t.phase]||'#888'}">${PHASE_LABELS[t.phase]||''}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderTopic(t) {
+  let html = ``;
+
+  html += `<div class="topic-header">
+    <div>
+      <div class="topic-title">${t.title}</div>
+      <div class="topic-why">${t.why}</div>
+    </div>
+    <div class="badges">
+      ${(t.badges||[]).map(b=>`<span class="badge ${b.c}">${b.t}</span>`).join('')}
+      <span class="badge" style="background:#f5f5f5;color:#666">${PHASE_LABELS[t.phase]}</span>
+    </div>
+  </div>`;
+
+  if(t.prereqs) {
+    html += `<div class="accent-bar accent-blue" style="margin-bottom:16px">
+      <strong style="font-size:12px;font-weight:500">Prerequisites: </strong>${t.prereqs.join(' · ')}
+    </div>`;
+  }
+
+  if(t.stages) {
+    const stageKeys = ['beginner','intermediate','advanced'];
+    const stageClasses = ['stage-bgn','stage-int','stage-adv'];
+    const stageLabels  = ['Beginner','Intermediate','Advanced'];
+    html += `<div style="font-size:13px;font-weight:500;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Learning progression</div>`;
+    html += `<div class="stages">`;
+    t.stages.forEach((s,i) => {
+      const skey = stageKeys[i];
+      html += `<div class="stage-card ${stageClasses[i]}">
+        <div class="stage-label">${stageLabels[i]}</div>
+        <div class="stage-body">${s.items.map((x,j) => {
+          const key = `${t.id}::stage_${skey}::${j}`;
+          return `<label class="check-item" style="padding:2px 0">
+            <input type="checkbox" data-key="${key}" onchange="saveCheck(this)">
+            <span>${x}</span>
+          </label>`;
+        }).join('')}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  function checkList(items, tid, section) {
+    return items.map((x, i) => {
+      const key = `${tid}::${section}::${i}`;
+      return `<label class="check-item" id="ci-${key.replace(/:/g,'_')}">
+        <input type="checkbox" data-key="${key}" onchange="saveCheck(this)">
+        <span>${x}</span>
+      </label>`;
+    }).join('');
+  }
+
+  html += `<div class="grid2">`;
+  if(t.projects)   html += `<div class="card"><div class="card-title">Hands-on projects</div><div class="card-body">${checkList(t.projects,t.id,'projects')}</div></div>`;
+  if(t.usecases)   html += `<div class="card"><div class="card-title">Real-world production use cases</div><div class="card-body">${checkList(t.usecases,t.id,'usecases')}</div></div>`;
+  if(t.mistakes)   html += `<div class="card"><div class="card-title">Common beginner mistakes</div><div class="card-body">${checkList(t.mistakes,t.id,'mistakes')}</div></div>`;
+  if(t.production) html += `<div class="card"><div class="card-title">How it is used in production</div><div class="card-body">${t.production}</div></div>`;
+  html += `</div>`;
+
+  if(t.ready) {
+    html += `<div style="font-size:13px;font-weight:500;color:#666;text-transform:uppercase;letter-spacing:.05em;margin:16px 0 4px">Ready to move on when you can:</div>`;
+    html += `<div class="progress-label" id="ready-prog-${t.id}"></div>`;
+    html += `<div class="progress-bar-wrap"><div class="progress-bar-fill" id="ready-bar-${t.id}" style="width:0%"></div></div>`;
+    html += `<div class="ready-list">${t.ready.map((r,i) => {
+      const key = `${t.id}::ready::${i}`;
+      return `<label class="ready-item" id="ci-${key.replace(/:/g,'_')}">
+        <input type="checkbox" data-key="${key}" onchange="saveCheck(this)">
+        <span>${r}</span>
+      </label>`;
+    }).join('')}</div>`;
+  }
+
+  return html;
+}
+
+/* ── Storage ── */
+function storageKey(key) { return 'roadmap::' + key; }
+
+function saveCheck(el) {
+  const key = el.dataset.key;
+  localStorage.setItem(storageKey(key), el.checked ? '1' : '0');
+  el.closest('label').classList.toggle('done', el.checked);
+  const tid = key.split('::')[0];
+  updateTopicProgress(tid);
+  updateGlobalProgress();
+}
+
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox][data-key]').forEach(el => {
+    const val = localStorage.getItem(storageKey(el.dataset.key));
+    el.checked = val === '1';
+    el.closest('label').classList.toggle('done', el.checked);
+  });
+}
+
+function getTopicChecks(tid) {
+  const t = TOPICS.find(x => x.id === tid);
+  if(!t) return {done:0, total:0};
+  let done = 0, total = 0;
+  ['projects','usecases','mistakes','ready'].forEach(sec => {
+    if(!t[sec]) return;
+    t[sec].forEach((_,i) => {
+      total++;
+      if(localStorage.getItem(storageKey(`${tid}::${sec}::${i}`)) === '1') done++;
+    });
+  });
+  if(t.stages) {
+    ['beginner','intermediate','advanced'].forEach((skey, si) => {
+      if(!t.stages[si]) return;
+      t.stages[si].items.forEach((_,i) => {
+        total++;
+        if(localStorage.getItem(storageKey(`${tid}::stage_${skey}::${i}`)) === '1') done++;
+      });
+    });
+  }
+  return {done, total};
+}
+
+function updateTopicProgress(tid) {
+  const t = TOPICS.find(x => x.id === tid);
+  if(!t || !t.ready) return;
+  let rdone = 0;
+  t.ready.forEach((_,i) => {
+    if(localStorage.getItem(storageKey(`${tid}::ready::${i}`)) === '1') rdone++;
+  });
+  const bar = document.getElementById(`ready-bar-${tid}`);
+  const lbl = document.getElementById(`ready-prog-${tid}`);
+  if(bar) bar.style.width = Math.round((rdone/t.ready.length)*100)+'%';
+  if(lbl) lbl.textContent = `${rdone} / ${t.ready.length} completed`;
+}
+
+function updateGlobalProgress() {
+  let totalDone = 0, totalAll = 0;
+  TOPICS.filter(t=>t.id!=='overview').forEach(t => {
+    const {done, total} = getTopicChecks(t.id);
+    totalDone += done; totalAll += total;
+  });
+  const pct = totalAll > 0 ? Math.round((totalDone/totalAll)*100) : 0;
+  const fill  = document.getElementById('gp-bar-fill');
+  const count = document.getElementById('gp-count');
+  if(fill)  fill.style.width = pct+'%';
+  if(count) count.textContent = `${totalDone} / ${totalAll} (${pct}%)`;
+}
+
+function showTopic(id) {
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('visible'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const sec = document.getElementById('sec-'+id);
+  const btn = document.getElementById('btn-'+id);
+  if(sec) sec.classList.add('visible');
+  if(btn) btn.classList.add('active');
+  loadChecks();
+  if(id !== 'overview') updateTopicProgress(id);
+}
+
+/* ── DOM BUILD ── */
+const topbar    = document.getElementById('topbar');
+const contentEl = document.getElementById('content');
+
+const gpWrap = document.createElement('div');
+gpWrap.className = 'global-progress';
+gpWrap.innerHTML = `
+  <span class="gp-label">Overall progress</span>
+  <div class="gp-bar-wrap"><div class="gp-bar-fill" id="gp-bar-fill" style="width:0%"></div></div>
+  <span class="gp-count" id="gp-count">0 / 0 (0%)</span>`;
+document.querySelector('.root').insertBefore(gpWrap, topbar);
+
+let lastPhase = null;
+TOPICS.forEach(t => {
+  if(t.phase !== lastPhase) {
+    if(t.id !== 'overview') {
+      const lbl = document.createElement('span');
+      lbl.className = 'phase-label';
+      lbl.textContent = PHASE_LABELS[t.phase];
+      topbar.appendChild(lbl);
+    }
+    lastPhase = t.phase;
+  }
+
+  const btn = document.createElement('button');
+  btn.className = 'nav-btn';
+  btn.id = 'btn-'+t.id;
+  btn.textContent = t.label;
+  btn.onclick = () => showTopic(t.id);
+  topbar.appendChild(btn);
+
+  const sec = document.createElement('div');
+  sec.className = 'sec';
+  sec.id = 'sec-'+t.id;
+  sec.innerHTML = t.id === 'overview' ? renderOverview() : renderTopic(t);
+  contentEl.appendChild(sec);
+});
+
+showTopic('overview');
+loadChecks();
+TOPICS.filter(t=>t.id!=='overview').forEach(t => updateTopicProgress(t.id));
+updateGlobalProgress();
+  </script>
+</body>
+</html>
