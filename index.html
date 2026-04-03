@@ -1,378 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Structured, opinionated learning roadmaps for engineering mastery." />
   <title>Learning Roadmaps</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg: #F5F3EE;
-      --surface: #FDFCF9;
-      --ink: #1A1714;
-      --ink-soft: #6B6560;
-      --ink-muted: #A8A39E;
-      --rule: #E2DDD8;
-      --accent: #2D4A3E;
-      --accent-light: #E8F0ED;
-      --warn: #8B3A1C;
-      --warn-light: #F5EBE6;
-      --gold: #8A6A2E;
-      --gold-light: #F5EFE3;
-      --indigo: #3C3489;
-      --indigo-light: #EEEDFE;
-    }
+  <!-- Google Fonts — loaded before CSS so FOUT is minimal -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      min-height: 100vh;
-      padding: 0;
-    }
-
-    /* ── HEADER ── */
-    header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--rule);
-      padding: 3rem 2rem 2.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-    header::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -60px;
-      width: 320px; height: 320px;
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .header-inner {
-      max-width: 880px;
-      margin: 0 auto;
-      position: relative;
-    }
-    .header-eyebrow {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 10px;
-    }
-    h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 400;
-      line-height: 1.15;
-      color: var(--ink);
-      margin-bottom: 12px;
-    }
-    h1 em {
-      font-style: italic;
-      color: var(--accent);
-    }
-    .header-sub {
-      font-size: 14px;
-      color: var(--ink-soft);
-      line-height: 1.65;
-      max-width: 520px;
-    }
-
-    /* ── MAIN ── */
-    main {
-      max-width: 880px;
-      margin: 0 auto;
-      padding: 2.5rem 2rem 5rem;
-    }
-
-    .section-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      margin-bottom: 1rem;
-    }
-
-    /* ── ROADMAP GRID ── */
-    .roadmap-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 14px;
-      margin-bottom: 3rem;
-    }
-
-    .roadmap-card {
-      background: var(--surface);
-      border: 1px solid var(--rule);
-      border-radius: 16px;
-      padding: 1.5rem;
-      cursor: pointer;
-      transition: border-color .2s, box-shadow .2s, transform .15s;
-      text-decoration: none;
-      display: block;
-      position: relative;
-      overflow: hidden;
-    }
-    .roadmap-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 16px;
-      opacity: 0;
-      transition: opacity .2s;
-      pointer-events: none;
-    }
-    .roadmap-card:hover {
-      border-color: #bbb;
-      box-shadow: 0 4px 24px rgba(0,0,0,.07);
-      transform: translateY(-2px);
-    }
-    .roadmap-card:hover::after { opacity: 1; }
-
-    .card-accent-bar {
-      height: 3px;
-      border-radius: 99px;
-      margin-bottom: 1.1rem;
-      width: 40px;
-    }
-    .card-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--ink-muted);
-      margin-bottom: 5px;
-    }
-    .card-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.25rem;
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.3;
-      margin-bottom: 6px;
-    }
-    .card-desc {
-      font-size: 12.5px;
-      color: var(--ink-soft);
-      line-height: 1.6;
-      margin-bottom: 1.1rem;
-    }
-    .card-tags {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
-    .tag {
-      font-size: 10.5px;
-      font-weight: 500;
-      padding: 2px 8px;
-      border-radius: 99px;
-    }
-    .card-arrow {
-      position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      font-size: 16px;
-      color: var(--ink-muted);
-      transition: transform .2s, color .2s;
-    }
-    .roadmap-card:hover .card-arrow {
-      transform: translate(2px, -2px);
-      color: var(--ink);
-    }
-
-    /* ── ADD YOUR OWN ── */
-    .add-card {
-      border: 1.5px dashed var(--rule);
-      background: transparent;
-      border-radius: 16px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .add-card-inner {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .add-card-icon {
-      width: 28px; height: 28px;
-      border-radius: 8px;
-      background: var(--rule);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-    .add-card-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--ink-soft);
-    }
-    .add-card-desc {
-      font-size: 11.5px;
-      color: var(--ink-muted);
-      line-height: 1.55;
-    }
-
-    /* ── HOW TO ADD ── */
-    .how-to {
-      background: var(--surface);
-      border: 1px solid var(--rule);
-      border-radius: 16px;
-      padding: 1.5rem 1.75rem;
-    }
-    .how-to-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--ink);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-    .how-to-title::before {
-      content: '↗';
-      font-size: 12px;
-      color: var(--accent);
-    }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
-    }
-    .step {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-    }
-    .step-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: var(--surface);
-      background: var(--accent);
-      width: 20px; height: 20px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .step-text {
-      font-size: 12px;
-      color: var(--ink-soft);
-      line-height: 1.55;
-    }
-    .step-text code {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      background: var(--bg);
-      padding: 1px 5px;
-      border-radius: 4px;
-      color: var(--accent);
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      text-align: center;
-      padding: 2rem;
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--ink-muted);
-      letter-spacing: .1em;
-      border-top: 1px solid var(--rule);
-    }
-  </style>
+  <!-- Single shared stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<header>
+<!-- ══════════════════════════════════════════════════════════════════
+     HEADER
+     ══════════════════════════════════════════════════════════════════ -->
+<header class="index-header">
   <div class="header-inner">
-    <div class="header-eyebrow">Learning Roadmaps Collection</div>
-    <h1>Your <em>path</em> to<br>engineering mastery.</h1>
-    <p class="header-sub">Structured, opinionated learning paths — each phase sequenced deliberately so every topic builds on the last.</p>
+    <p class="header-eyebrow">Learning Roadmaps Collection</p>
+    <h1 class="index-title">Your <em>path</em> to<br>engineering mastery.</h1>
+    <p class="index-subtitle">
+      Structured, opinionated learning paths — each phase sequenced deliberately
+      so every topic builds on the last.
+    </p>
   </div>
 </header>
 
-<main>
+<!-- ══════════════════════════════════════════════════════════════════
+     MAIN CONTENT
+     ══════════════════════════════════════════════════════════════════ -->
+<main class="index-main">
 
-  <p class="section-label">Available roadmaps</p>
+  <p class="section-eyebrow">Available roadmaps</p>
 
+  <!--
+    ROADMAP GRID
+    ─────────────────────────────────────────────────────────────────
+    Each card links to details.html?data=<slug>
+    The slug must match the filename: data/<slug>-data.js
+
+    To add a new roadmap:
+      1. Create data/<your-slug>-data.js
+      2. Copy one of the <a> cards below and update href, colors, and text.
+       No other files need changing.
+    ─────────────────────────────────────────────────────────────────
+  -->
   <div class="roadmap-grid" id="roadmap-grid">
 
-    <!-- ── DevOps & SRE ── -->
-    <a class="roadmap-card" href="devops-sre.html">
-      <div class="card-accent-bar" style="background:#2D4A3E"></div>
-      <div class="card-num">01</div>
-      <div class="card-title">DevOps &amp; SRE</div>
-      <div class="card-desc">Linux to Kubernetes, CI/CD pipelines, cloud platforms, observability, and SRE principles. ~40 weeks.</div>
+    <!-- ── Card 01: DevOps & SRE ── -->
+    <a class="roadmap-card" href="details.html?data=devops-sre">
+      <div class="card-accent" style="background: #2A4535;"></div>
+      <p class="card-number">01</p>
+      <h2 class="card-title">DevOps &amp; SRE</h2>
+      <p class="card-desc">
+        Linux to Kubernetes, CI/CD pipelines, cloud platforms, observability,
+        and SRE principles. ~40 weeks end-to-end.
+      </p>
       <div class="card-tags">
-        <span class="tag" style="background:#E8F0ED;color:#2D4A3E">Foundation</span>
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">Platform</span>
-        <span class="tag" style="background:#FAEEDA;color:#633806">Cloud</span>
-        <span class="tag" style="background:#FAECE7;color:#993C1D">Observability</span>
+        <span class="tag" style="background:#E4EEE9;color:#2A4535">Foundation</span>
+        <span class="tag" style="background:#ECEAFC;color:#342E7A">Platform</span>
+        <span class="tag" style="background:#F5EDD8;color:#7A5C1A">Cloud</span>
+        <span class="tag" style="background:#F3E8E3;color:#7A3218">Observability</span>
       </div>
-      <span class="card-arrow">↗</span>
+      <span class="card-arrow" aria-hidden="true">↗</span>
     </a>
 
-    <!-- ── Java Developer ── -->
-    <a class="roadmap-card" href="java.html">
-      <div class="card-accent-bar" style="background:#8B3A1C"></div>
-      <div class="card-num">02</div>
-      <div class="card-title">Java Developer</div>
-      <div class="card-desc">CS fundamentals to Spring Boot, distributed systems, databases, and interview preparation. ~9 phases.</div>
+    <!-- ── Card 02: Java Developer ── -->
+    <a class="roadmap-card" href="details.html?data=java">
+      <div class="card-accent" style="background: #7A3218;"></div>
+      <p class="card-number">02</p>
+      <h2 class="card-title">Java Developer</h2>
+      <p class="card-desc">
+        CS fundamentals through Spring Boot, distributed systems, databases,
+        and full interview preparation. 9 phases.
+      </p>
       <div class="card-tags">
         <span class="tag" style="background:#E1F5EE;color:#085041">CS Fundamentals</span>
         <span class="tag" style="background:#E6F1FB;color:#0C447C">Spring Boot</span>
         <span class="tag" style="background:#FBEAF0;color:#72243E">System Design</span>
       </div>
-      <span class="card-arrow">↗</span>
+      <span class="card-arrow" aria-hidden="true">↗</span>
     </a>
 
-    <!-- ── Add your own placeholder ── -->
-    <div class="add-card">
-      <div class="add-card-inner">
+    <!--
+      ── ADD MORE CARDS HERE ──
+      Pattern:
+        <a class="roadmap-card" href="details.html?data=YOUR-SLUG">
+          <div class="card-accent" style="background: #ACCENT-COLOR;"></div>
+          <p class="card-number">03</p>
+          <h2 class="card-title">Your Title</h2>
+          <p class="card-desc">Short description.</p>
+          <div class="card-tags">...</div>
+          <span class="card-arrow" aria-hidden="true">↗</span>
+        </a>
+    -->
+
+    <!-- ── Placeholder: Add your own ── -->
+    <div class="add-card" aria-hidden="true">
+      <div class="add-card-body">
         <div class="add-card-icon">+</div>
-        <div class="add-card-title">Add a new roadmap</div>
-        <div class="add-card-desc">Create a data file and an HTML file, then add a card here. See instructions below.</div>
+        <p class="add-card-title">Add a new roadmap</p>
+        <p class="add-card-desc">
+          Create <code>data/your-slug-data.js</code>, then add a card here
+          linking to <code>details.html?data=your-slug</code>.
+        </p>
       </div>
     </div>
 
-  </div>
+  </div><!-- /roadmap-grid -->
 
   <!-- ── HOW TO ADD A NEW ROADMAP ── -->
-  <p class="section-label" style="margin-bottom:.75rem">How to add a new roadmap</p>
+  <p class="section-eyebrow" style="margin-bottom: 12px;">How to add a new roadmap</p>
   <div class="how-to">
-    <div class="how-to-title">Four steps to extend this collection</div>
-    <div class="steps">
+    <p class="how-to-heading">Four steps to extend this collection</p>
+    <div class="steps-grid">
       <div class="step">
-        <span class="step-num">1</span>
-        <span class="step-text">Create <code>data/your-topic-data.js</code> — export <code>TOPICS</code> and <code>PHASE_LABELS</code> following the existing data file format.</span>
+        <span class="step-num" aria-hidden="true">1</span>
+        <p class="step-text">
+          Create <code>data/your-slug-data.js</code> — define <code>TOPICS</code>,
+          <code>PHASE_LABELS</code>, and optionally <code>PHASE_ORDER</code>.
+        </p>
       </div>
       <div class="step">
-        <span class="step-num">2</span>
-        <span class="step-text">Copy <code>devops-sre.html</code> to <code>your-topic.html</code> and change the <code>&lt;script src&gt;</code> to point to your new data file.</span>
+        <span class="step-num" aria-hidden="true">2</span>
+        <p class="step-text">
+          Add a card in <code>index.html</code> linking to
+          <code>details.html?data=your-slug</code>. No other HTML changes needed.
+        </p>
       </div>
       <div class="step">
-        <span class="step-num">3</span>
-        <span class="step-text">Add a new <code>&lt;a class="roadmap-card"&gt;</code> block in <code>index.html</code> before the placeholder card, following the pattern above.</span>
+        <span class="step-num" aria-hidden="true">3</span>
+        <p class="step-text">
+          <code>script.js</code> auto-detects the slug from the URL, loads
+          <code>data/your-slug-data.js</code>, and renders everything dynamically.
+        </p>
       </div>
       <div class="step">
-        <span class="step-num">4</span>
-        <span class="step-text">Pick an accent color and matching tags. That's it — the shared renderer handles the rest automatically.</span>
+        <span class="step-num" aria-hidden="true">4</span>
+        <p class="step-text">
+          Pick an accent color and badge styles for your card.
+          Progress is saved per-roadmap in <code>localStorage</code>.
+        </p>
       </div>
     </div>
   </div>
 
 </main>
 
-<footer>
+<footer class="index-footer">
   Roadmaps Collection &nbsp;·&nbsp; Add new paths by following the instructions above
 </footer>
 

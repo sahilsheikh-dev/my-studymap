@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--
+    The page <title> is set dynamically by script.js once the data file loads.
+    It falls back to "Roadmap" if something goes wrong.
+  -->
+  <title>Roadmap</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Single shared stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!--
+  ══════════════════════════════════════════════════════════════════
+  DETAILS PAGE SHELL
+  ══════════════════════════════════════════════════════════════════
+  All content below is rendered by script.js.
+  This file contains zero hardcoded roadmap content — it is purely
+  a structural scaffold that script.js populates after:
+    1. Reading ?data=<slug> from the URL
+    2. Dynamically injecting <script src="data/<slug>-data.js">
+    3. Rendering TOPICS + PHASE_LABELS from the loaded data file
+
+  Structure injected by script.js:
+    .details-topbar    → back link, roadmap title, global progress
+    .nav-strip         → phase labels + topic nav buttons
+    .details-content   → overview + individual topic sections
+  ══════════════════════════════════════════════════════════════════
+-->
+
+<div class="details-root">
+
+  <!-- ── Sticky top bar: back link + title + global progress ── -->
+  <header class="details-topbar" id="details-topbar">
+    <!--
+      Rendered by script.js → buildTopbar()
+      Falls back to loading state until data is ready.
+    -->
+    <div class="topbar-inner">
+      <a class="back-link" href="index.html">
+        <span class="back-link-arrow">←</span>
+        All roadmaps
+      </a>
+      <span class="topbar-title" id="topbar-title">Loading…</span>
+      <div class="topbar-progress">
+        <span class="progress-label-text">Progress</span>
+        <div class="progress-track">
+          <div class="progress-fill" id="gp-fill" style="width:0%"></div>
+        </div>
+        <span class="progress-count" id="gp-count">—</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Sticky nav strip: phase labels + topic buttons ── -->
+  <nav class="nav-strip" id="nav-strip" aria-label="Topic navigation">
+    <div class="nav-strip-inner" id="nav-strip-inner">
+      <!-- Populated by script.js → buildNav() -->
+    </div>
+  </nav>
+
+  <!-- ── Main content area ── -->
+  <main class="details-content" id="details-content">
+    <!--
+      Initial loading indicator — replaced by script.js once data loads.
+      If the data slug is missing or the file 404s, an error screen is shown.
+    -->
+    <div class="loading-screen" id="loading-screen">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading roadmap…</p>
+    </div>
+  </main>
+
+  <footer class="details-footer" id="details-footer" style="display:none">
+    Roadmaps Collection &nbsp;·&nbsp;
+    <a href="index.html" style="color:inherit;text-decoration:underline;text-underline-offset:3px">
+      Browse all roadmaps
+    </a>
+  </footer>
+
+</div><!-- /details-root -->
+
+<!--
+  script.js is loaded AFTER the HTML so it can find the DOM elements above.
+  It will:
+    1. Parse ?data=<slug> from window.location.search
+    2. Inject <script src="data/<slug>-data.js">
+    3. Once TOPICS is defined, call init() to render everything
+-->
+<script src="script.js"></script>
+
+</body>
+</html>
