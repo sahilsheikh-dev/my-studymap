@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java Developer Learning Roadmap</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font-sans,system-ui,sans-serif);background:transparent;padding:10px}
+    .root{padding:1rem 0}
+    .back-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-secondary,#666);text-decoration:none;margin-bottom:1rem;padding:4px 0;transition:color .15s}
+    .back-link:hover{color:var(--color-text-primary,#111)}
+    .back-link::before{content:'←';font-size:13px}
+    .top-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center}
+    .nav-btn{font-size:12px;font-weight:500;padding:5px 11px;border-radius:99px;border:0.5px solid var(--color-border-secondary,#ccc);background:var(--color-background-primary,#fff);color:var(--color-text-secondary,#666);cursor:pointer;transition:all 0.15s;white-space:nowrap}
+    .nav-btn:hover{background:var(--color-background-secondary,#f5f5f5);color:var(--color-text-primary,#111)}
+    .nav-btn.active{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+    .phase-label{font-size:11px;font-weight:500;color:var(--color-text-secondary,#666);padding:0 4px}
+    .sec{display:none}.sec.visible{display:block}
+    .topic-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:1.5rem}
+    .topic-title{font-size:22px;font-weight:500;color:var(--color-text-primary,#111)}
+    .topic-why{font-size:13px;color:var(--color-text-secondary,#666);line-height:1.6;max-width:600px;margin-top:4px}
+    .badges{display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
+    .badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px}
+    .b-foundation{background:#E1F5EE;color:#085041}
+    .b-devops{background:#E6F1FB;color:#0C447C}
+    .b-cloud{background:#FAEEDA;color:#633806}
+    .b-platform{background:#EEEDFE;color:#3C3489}
+    .b-observability{background:#FAECE7;color:#993C1D}
+    .b-scripting{background:#EAF3DE;color:#27500A}
+    .b-sre{background:#FBEAF0;color:#72243E}
+    .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-bottom:16px}
+    .card{background:var(--color-background-primary,#fff);border:1px solid #010101;border-radius:12px;padding:1rem 1.25rem}
+    .card-title{font-size:13px;font-weight:500;color:var(--color-text-secondary,#666);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+    .card-body{font-size:13px;color:var(--color-text-primary,#111);line-height:1.7}
+    .card-body ul{padding-left:1rem}
+    .card-body li{margin-bottom:3px}
+    .accent-bar{border:1px solid;border-left:2px solid;border-radius:0;padding:8px 12px;font-size:13px;color:var(--color-text-primary,#111);line-height:1.65;margin-bottom:12px}
+    .accent-blue{border-color:#378ADD;background:#E6F1FB}
+    .accent-green{border-color:#639922;background:#EAF3DE}
+    .accent-amber{border-color:#BA7517;background:#FAEEDA}
+    .accent-red{border-color:#E24B4A;background:#FCEBEB}
+    .accent-purple{border-color:#7F77DD;background:#EEEDFE}
+    .stages{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+    .stage-card{border-radius:12px;padding:12px 14px;border:1px solid #010101}
+    .stage-label{font-size:11px;font-weight:500;margin-bottom:6px}
+    .stage-body{font-size:12px;color:var(--color-text-primary,#111);line-height:1.65}
+    .stage-body ul{padding-left:0.9rem}
+    .stage-bgn{background:#E1F5EE}.stage-bgn .stage-label{color:#085041}
+    .stage-int{background:#FAEEDA}.stage-int .stage-label{color:#633806}
+    .stage-adv{background:#EEEDFE}.stage-adv .stage-label{color:#3C3489}
+    .flow-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+    .flow-chip{font-size:12px;padding:4px 10px;border-radius:99px;border:0.5px solid #ccc;background:#f5f5f5;color:#111;white-space:nowrap}
+    .flow-arrow{font-size:14px;color:#666}
+    .ready-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;margin-bottom:16px}
+    .ready-item{font-size:13px;padding:8px 12px;border-radius:8px;background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5}
+    .divider{height:0.5px;background:#ddd;margin:16px 0}
+    .nav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+    .topic-nav-card{background:var(--color-background-primary,#fff);border:0.5px solid #ddd;border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color .15s}
+    .topic-nav-card:hover{border-color:#999}
+    .tnc-num{font-size:11px;color:#666;margin-bottom:2px}
+    .tnc-name{font-size:13px;font-weight:500;color:#111}
+    .tnc-phase{font-size:11px;margin-top:4px}
+    .progress-bar-wrap{height:4px;background:#e5e5e5;border-radius:99px;margin-bottom:16px;overflow:hidden}
+    .progress-bar-fill{height:100%;background:#3C3489;border-radius:99px;transition:width .3s}
+    .progress-label{font-size:11px;color:#666;margin-bottom:4px}
+    .check-item{display:flex;align-items:flex-start;gap:8px;padding:4px 0;cursor:pointer;user-select:none}
+    .check-item input[type=checkbox]{margin-top:2px;accent-color:#3C3489;cursor:pointer;flex-shrink:0;width:14px;height:14px}
+    .check-item.done span{text-decoration:line-through;color:#aaa}
+    .ready-item{display:flex;align-items:flex-start;gap:8px;cursor:pointer;user-select:none}
+    .ready-item input[type=checkbox]{margin-top:2px;accent-color:#085041;cursor:pointer;flex-shrink:0;width:14px;height:14px}
+    .ready-item.done span{text-decoration:line-through;opacity:.5}
+    .global-progress{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;padding:10px 14px;background:var(--color-background-primary,#fff);border:0.5px solid #ddd;border-radius:12px}
+    .gp-label{font-size:12px;color:#666;white-space:nowrap}
+    .gp-bar-wrap{flex:1;height:6px;background:#e5e5e5;border-radius:99px;overflow:hidden}
+    .gp-bar-fill{height:100%;background:#3C3489;border-radius:99px;transition:width .3s}
+    .gp-count{font-size:12px;color:#3C3489;font-weight:500;white-space:nowrap}
+    .topic-nav-card .tnc-prog{font-size:10px;color:#3C3489;margin-top:3px}
+  </style>
+</head>
+<body>
+<div class="root">
+  <a class="back-link" href="index.html">All roadmaps</a>
+  <div class="top-bar" id="topbar"></div>
+  <div id="content"></div>
+</div>
+
+<script src="data/java-data.js"></script>
+<script src="roadmap-renderer.js"></script>
+</body>
+</html>
