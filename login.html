@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — Learning Roadmaps</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <style>
+    /* ── Auth-page specific styles ─────────────────────────────── */
+    /* These extend styles.css without touching it.                 */
+
+    .auth-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 28px;
+      border-bottom: 1.5px solid var(--border, #e5e5e5);
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px 0;
+      background: none;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      font-family: var(--font-sans, system-ui);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-muted, #888);
+      cursor: pointer;
+      margin-bottom: -1.5px;
+      transition: color .15s, border-color .15s;
+    }
+
+    .auth-tab.active {
+      color: var(--indigo, #3C3489);
+      border-bottom-color: var(--indigo, #3C3489);
+    }
+
+    .auth-tab:focus-visible {
+      outline: 2px solid var(--indigo, #3C3489);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* Each form panel — only the active one is visible */
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
+
+    /* Password strength indicator */
+    .pw-strength-bar {
+      height: 3px;
+      border-radius: 99px;
+      background: var(--border, #e5e5e5);
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .pw-strength-fill {
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width .25s, background .25s;
+    }
+    .pw-strength-label {
+      font-size: 11px;
+      margin-top: 3px;
+      color: var(--ink-muted, #888);
+    }
+
+    /* Password toggle visibility button */
+    .pw-field-wrap { position: relative; }
+    .pw-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--ink-muted, #888);
+      font-size: 13px;
+      padding: 4px;
+      line-height: 1;
+    }
+    .pw-toggle:focus-visible {
+      outline: 2px solid var(--indigo, #3C3489);
+      border-radius: 2px;
+    }
+
+    /* Forgot password link — sits below the password field */
+    .forgot-link {
+      display: inline-block;
+      font-size: 12px;
+      color: var(--indigo, #3C3489);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      margin-top: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+    }
+    .forgot-link:hover { opacity: .75; }
+
+    /* Success message (e.g. after password reset email sent) */
+    .auth-success {
+      display: none;
+      padding: 10px 14px;
+      background: #E8F5EE;
+      border: 1px solid #5DCAA5;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #085041;
+      margin-bottom: 16px;
+    }
+    .auth-success.visible { display: block; }
+
+    /* Info text below form */
+    .auth-info {
+      font-size: 12px;
+      color: var(--ink-muted, #888);
+      text-align: center;
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+
+    /* Divider between form and info */
+    .auth-divider {
+      height: 1px;
+      background: var(--border, #e5e5e5);
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-page">
+  <div class="login-card">
+
+    <!-- Brand -->
+    <div class="login-logo">
+      <div class="login-logo-mark">R</div>
+      <h1 class="login-title">Learning Roadmaps</h1>
+      <p class="login-subtitle">Track your progress, master your craft.</p>
+    </div>
+
+    <!-- Tab switcher: Sign in / Sign up -->
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab active" role="tab" id="tab-signin"
+              aria-selected="true" aria-controls="panel-signin"
+              onclick="switchTab('signin')">Sign in</button>
+      <button class="auth-tab" role="tab" id="tab-signup"
+              aria-selected="false" aria-controls="panel-signup"
+              onclick="switchTab('signup')">Create account</button>
+    </div>
+
+    <!-- Error message (shared across panels) -->
+    <div class="login-error" id="auth-error" role="alert" aria-live="polite"></div>
+
+    <!-- Success message (e.g. password reset sent) -->
+    <div class="auth-success" id="auth-success" role="status" aria-live="polite"></div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SIGN IN PANEL
+         ══════════════════════════════════════════════════════════ -->
+    <div class="auth-panel active" id="panel-signin" role="tabpanel"
+         aria-labelledby="tab-signin">
+
+      <form id="signin-form" novalidate>
+
+        <div class="login-field">
+          <label for="signin-email">Email address</label>
+          <input type="email" id="signin-email" name="email"
+                 placeholder="you@example.com"
+                 autocomplete="email" required />
+        </div>
+
+        <div class="login-field">
+          <label for="signin-password">Password</label>
+          <div class="pw-field-wrap">
+            <input type="password" id="signin-password" name="password"
+                   placeholder="••••••••"
+                   autocomplete="current-password" required />
+            <button type="button" class="pw-toggle"
+                    onclick="togglePw('signin-password', this)"
+                    aria-label="Show password">👁</button>
+          </div>
+          <button type="button" class="forgot-link"
+                  onclick="showForgotPassword()">
+            Forgot password?
+          </button>
+        </div>
+
+        <button type="submit" class="login-submit" id="signin-btn">
+          Sign in
+        </button>
+
+      </form>
+
+    </div><!-- /panel-signin -->
+
+    <!-- ══════════════════════════════════════════════════════════
+         SIGN UP PANEL
+         ══════════════════════════════════════════════════════════ -->
+    <div class="auth-panel" id="panel-signup" role="tabpanel"
+         aria-labelledby="tab-signup">
+
+      <form id="signup-form" novalidate>
+
+        <div class="login-field">
+          <label for="signup-name">Display name <span style="color:#aaa;font-weight:400">(optional)</span></label>
+          <input type="text" id="signup-name" name="displayName"
+                 placeholder="Your name"
+                 autocomplete="name"
+                 maxlength="64" />
+        </div>
+
+        <div class="login-field">
+          <label for="signup-email">Email address</label>
+          <input type="email" id="signup-email" name="email"
+                 placeholder="you@example.com"
+                 autocomplete="email" required />
+        </div>
+
+        <div class="login-field">
+          <label for="signup-password">Password</label>
+          <div class="pw-field-wrap">
+            <input type="password" id="signup-password" name="password"
+                   placeholder="At least 6 characters"
+                   autocomplete="new-password"
+                   required minlength="6"
+                   oninput="checkPasswordStrength(this.value)" />
+            <button type="button" class="pw-toggle"
+                    onclick="togglePw('signup-password', this)"
+                    aria-label="Show password">👁</button>
+          </div>
+          <!-- Password strength meter -->
+          <div class="pw-strength-bar" aria-hidden="true">
+            <div class="pw-strength-fill" id="pw-strength-fill"></div>
+          </div>
+          <p class="pw-strength-label" id="pw-strength-label" aria-live="polite"></p>
+        </div>
+
+        <div class="login-field">
+          <label for="signup-password-confirm">Confirm password</label>
+          <div class="pw-field-wrap">
+            <input type="password" id="signup-password-confirm" name="passwordConfirm"
+                   placeholder="Repeat password"
+                   autocomplete="new-password" required />
+            <button type="button" class="pw-toggle"
+                    onclick="togglePw('signup-password-confirm', this)"
+                    aria-label="Show password">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" class="login-submit" id="signup-btn">
+          Create account
+        </button>
+
+      </form>
+
+      <div class="auth-info">
+        By creating an account you agree to use this platform for personal
+        learning tracking only.
+      </div>
+
+    </div><!-- /panel-signup -->
+
+    <div class="auth-divider"></div>
+
+    <p class="login-footer">
+      <a href="index.html">← Back to roadmaps</a>
+    </p>
+
+  </div><!-- /login-card -->
+</div><!-- /login-page -->
+
+<script type="module">
+  import { signIn, signUp, sendPasswordReset, onAuthChange } from './js/auth.js';
+
+  /* ──────────────────────────────────────────────────────────────
+     REDIRECT LOGIC
+     If already logged in, skip this page entirely.
+  ──────────────────────────────────────────────────────────────── */
+  const params   = new URLSearchParams(window.location.search);
+  const redirect = params.get('redirect') || 'index.html';
+
+  // Pre-fill the URL's email param if provided (e.g. from an invite link)
+  const emailParam = params.get('email');
+  if (emailParam) {
+    document.getElementById('signin-email').value = emailParam;
+    document.getElementById('signup-email').value = emailParam;
+  }
+
+  const unsub = onAuthChange(user => {
+    if (user) {
+      unsub();
+      window.location.href = decodeURIComponent(redirect);
+    }
+  });
+
+  /* ──────────────────────────────────────────────────────────────
+     SIGN IN FORM
+  ──────────────────────────────────────────────────────────────── */
+  document.getElementById('signin-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const form  = e.target;
+    const email = form.email.value.trim();
+    const pw    = form.password.value;
+
+    if (!email || !pw) { showError('Please enter your email and password.'); return; }
+
+    setLoading('signin-btn', true, 'Signing in…');
+    clearMessages();
+
+    try {
+      await signIn(email, pw);
+      // onAuthChange fires → redirect handled above
+    } catch (err) {
+      showError(err.message);
+      setLoading('signin-btn', false, 'Sign in');
+    }
+  });
+
+  /* ──────────────────────────────────────────────────────────────
+     SIGN UP FORM
+  ──────────────────────────────────────────────────────────────── */
+  document.getElementById('signup-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const form        = e.target;
+    const name        = form.displayName.value.trim();
+    const email       = form.email.value.trim();
+    const pw          = form.password.value;
+    const pwConfirm   = form.passwordConfirm.value;
+
+    // Client-side validation
+    if (!email)         { showError('Please enter your email address.');    return; }
+    if (!pw)            { showError('Please enter a password.');             return; }
+    if (pw.length < 6)  { showError('Password must be at least 6 characters.'); return; }
+    if (pw !== pwConfirm) { showError('Passwords do not match.');             return; }
+
+    setLoading('signup-btn', true, 'Creating account…');
+    clearMessages();
+
+    try {
+      await signUp(email, pw, name);
+      // onAuthChange fires → redirect handled above
+    } catch (err) {
+      showError(err.message);
+      setLoading('signup-btn', false, 'Create account');
+    }
+  });
+
+  /* ──────────────────────────────────────────────────────────────
+     FORGOT PASSWORD
+  ──────────────────────────────────────────────────────────────── */
+  window.showForgotPassword = function () {
+    const email = document.getElementById('signin-email').value.trim();
+    const input = prompt(
+      'Enter your email address and we\'ll send a reset link:',
+      email
+    );
+    if (input === null) return; // user cancelled
+    if (!input.trim())  { showError('Please enter an email address.'); return; }
+
+    sendPasswordReset(input.trim())
+      .then(() => {
+        showSuccess(`Reset email sent to ${input.trim()}. Check your inbox (and spam folder).`);
+        clearError();
+      })
+      .catch(err => showError(err.message));
+  };
+
+  /* ──────────────────────────────────────────────────────────────
+     HELPERS exposed to inline handlers
+  ──────────────────────────────────────────────────────────────── */
+
+  /** Switch between sign-in and sign-up tabs */
+  window.switchTab = function (tab) {
+    clearMessages();
+
+    document.querySelectorAll('.auth-tab').forEach(t => {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    document.getElementById(`tab-${tab}`).setAttribute('aria-selected', 'true');
+    document.getElementById(`panel-${tab}`).classList.add('active');
+
+    // Focus the email field in the newly revealed panel
+    const emailField = document.getElementById(`${tab}-email`);
+    if (emailField) emailField.focus();
+  };
+
+  /** Toggle password visibility */
+  window.togglePw = function (inputId, btn) {
+    const input = document.getElementById(inputId);
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    btn.textContent = show ? '🙈' : '👁';
+    btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  };
+
+  /**
+   * Password strength checker.
+   * Scores: 0 = empty, 1 = weak, 2 = fair, 3 = good, 4 = strong
+   */
+  window.checkPasswordStrength = function (pw) {
+    const fill  = document.getElementById('pw-strength-fill');
+    const label = document.getElementById('pw-strength-label');
+
+    if (!pw) { fill.style.width = '0%'; label.textContent = ''; return; }
+
+    let score = 0;
+    if (pw.length >= 8)                     score++;
+    if (/[A-Z]/.test(pw))                   score++;
+    if (/[0-9]/.test(pw))                   score++;
+    if (/[^A-Za-z0-9]/.test(pw))           score++;
+
+    const levels = [
+      { pct: '15%', color: '#E24B4A', text: 'Too weak' },
+      { pct: '35%', color: '#E24B4A', text: 'Weak'     },
+      { pct: '60%', color: '#BA7517', text: 'Fair'      },
+      { pct: '80%', color: '#639922', text: 'Good'      },
+      { pct: '100%',color: '#085041', text: 'Strong'    },
+    ];
+
+    const lvl = levels[Math.min(score, 4)];
+    fill.style.width       = lvl.pct;
+    fill.style.background  = lvl.color;
+    label.textContent      = pw.length < 6 ? 'Minimum 6 characters required' : lvl.text;
+    label.style.color      = lvl.color;
+  };
+
+  /* ── UI state helpers ─────────────────────────────────────────── */
+
+  function showError(msg) {
+    const el = document.getElementById('auth-error');
+    el.textContent = msg;
+    el.classList.add('visible');
+  }
+
+  function clearError() {
+    const el = document.getElementById('auth-error');
+    el.textContent = '';
+    el.classList.remove('visible');
+  }
+
+  function showSuccess(msg) {
+    const el = document.getElementById('auth-success');
+    el.textContent = msg;
+    el.classList.add('visible');
+  }
+
+  function clearMessages() {
+    clearError();
+    const el = document.getElementById('auth-success');
+    el.textContent = '';
+    el.classList.remove('visible');
+  }
+
+  function setLoading(btnId, loading, label) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.disabled     = loading;
+    btn.textContent  = label;
+  }
+</script>
+
+</body>
+</html>

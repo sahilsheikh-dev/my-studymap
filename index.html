@@ -1,159 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Structured, opinionated learning roadmaps for engineering mastery." />
-  <title>Learning Roadmaps</title>
-
-  <!-- Google Fonts — loaded before CSS so FOUT is minimal -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-
-  <!-- Single shared stylesheet -->
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-
-<!-- ══════════════════════════════════════════════════════════════════
-     HEADER
-     ══════════════════════════════════════════════════════════════════ -->
-<header class="index-header">
-  <div class="header-inner">
-    <p class="header-eyebrow">Learning Roadmaps Collection</p>
-    <h1 class="index-title">Your <em>path</em> to<br>engineering mastery.</h1>
-    <p class="index-subtitle">
-      Structured, opinionated learning paths — each phase sequenced deliberately
-      so every topic builds on the last.
-    </p>
-  </div>
-</header>
-
-<!-- ══════════════════════════════════════════════════════════════════
-     MAIN CONTENT
-     ══════════════════════════════════════════════════════════════════ -->
-<main class="index-main">
-
-  <p class="section-eyebrow">Available roadmaps</p>
-
-  <!--
-    ROADMAP GRID
-    ─────────────────────────────────────────────────────────────────
-    Each card links to details.html?data=<slug>
-    The slug must match the filename: data/<slug>-data.js
-
-    To add a new roadmap:
-      1. Create data/<your-slug>-data.js
-      2. Copy one of the <a> cards below and update href, colors, and text.
-       No other files need changing.
-    ─────────────────────────────────────────────────────────────────
-  -->
-  <div class="roadmap-grid" id="roadmap-grid">
-
-    <!-- ── Card 01: DevOps & SRE ── -->
-    <a class="roadmap-card" href="details.html?data=devops-sre">
-      <div class="card-accent" style="background: #2A4535;"></div>
-      <p class="card-number">01</p>
-      <h2 class="card-title">DevOps &amp; SRE</h2>
-      <p class="card-desc">
-        Linux to Kubernetes, CI/CD pipelines, cloud platforms, observability,
-        and SRE principles. ~40 weeks end-to-end.
-      </p>
-      <div class="card-tags">
-        <span class="tag" style="background:#E4EEE9;color:#2A4535">Foundation</span>
-        <span class="tag" style="background:#ECEAFC;color:#342E7A">Platform</span>
-        <span class="tag" style="background:#F5EDD8;color:#7A5C1A">Cloud</span>
-        <span class="tag" style="background:#F3E8E3;color:#7A3218">Observability</span>
-      </div>
-      <span class="card-arrow" aria-hidden="true">↗</span>
-    </a>
-
-    <!-- ── Card 02: Java Developer ── -->
-    <a class="roadmap-card" href="details.html?data=java">
-      <div class="card-accent" style="background: #7A3218;"></div>
-      <p class="card-number">02</p>
-      <h2 class="card-title">Java Developer</h2>
-      <p class="card-desc">
-        CS fundamentals through Spring Boot, distributed systems, databases,
-        and full interview preparation. 9 phases.
-      </p>
-      <div class="card-tags">
-        <span class="tag" style="background:#E1F5EE;color:#085041">CS Fundamentals</span>
-        <span class="tag" style="background:#E6F1FB;color:#0C447C">Spring Boot</span>
-        <span class="tag" style="background:#FBEAF0;color:#72243E">System Design</span>
-      </div>
-      <span class="card-arrow" aria-hidden="true">↗</span>
-    </a>
-
-    <!--
-      ── ADD MORE CARDS HERE ──
-      Pattern:
-        <a class="roadmap-card" href="details.html?data=YOUR-SLUG">
-          <div class="card-accent" style="background: #ACCENT-COLOR;"></div>
-          <p class="card-number">03</p>
-          <h2 class="card-title">Your Title</h2>
-          <p class="card-desc">Short description.</p>
-          <div class="card-tags">...</div>
-          <span class="card-arrow" aria-hidden="true">↗</span>
-        </a>
-    -->
-
-    <!-- ── Placeholder: Add your own ── -->
-    <div class="add-card" aria-hidden="true">
-      <div class="add-card-body">
-        <div class="add-card-icon">+</div>
-        <p class="add-card-title">Add a new roadmap</p>
-        <p class="add-card-desc">
-          Create <code>data/your-slug-data.js</code>, then add a card here
-          linking to <code>details.html?data=your-slug</code>.
-        </p>
-      </div>
-    </div>
-
-  </div><!-- /roadmap-grid -->
-
-  <!-- ── HOW TO ADD A NEW ROADMAP ── -->
-  <p class="section-eyebrow" style="margin-bottom: 12px;">How to add a new roadmap</p>
-  <div class="how-to">
-    <p class="how-to-heading">Four steps to extend this collection</p>
-    <div class="steps-grid">
-      <div class="step">
-        <span class="step-num" aria-hidden="true">1</span>
-        <p class="step-text">
-          Create <code>data/your-slug-data.js</code> — define <code>TOPICS</code>,
-          <code>PHASE_LABELS</code>, and optionally <code>PHASE_ORDER</code>.
-        </p>
-      </div>
-      <div class="step">
-        <span class="step-num" aria-hidden="true">2</span>
-        <p class="step-text">
-          Add a card in <code>index.html</code> linking to
-          <code>details.html?data=your-slug</code>. No other HTML changes needed.
-        </p>
-      </div>
-      <div class="step">
-        <span class="step-num" aria-hidden="true">3</span>
-        <p class="step-text">
-          <code>script.js</code> auto-detects the slug from the URL, loads
-          <code>data/your-slug-data.js</code>, and renders everything dynamically.
-        </p>
-      </div>
-      <div class="step">
-        <span class="step-num" aria-hidden="true">4</span>
-        <p class="step-text">
-          Pick an accent color and badge styles for your card.
-          Progress is saved per-roadmap in <code>localStorage</code>.
-        </p>
-      </div>
-    </div>
-  </div>
-
-</main>
-
-<footer class="index-footer">
-  Roadmaps Collection &nbsp;·&nbsp; Add new paths by following the instructions above
-</footer>
-
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="Structured, opinionated learning roadmaps for engineering mastery." />
+		<title>Learning Roadmaps</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+		<link rel="stylesheet" href="css/styles.css" />
+	</head>
+	<body>
+		<!--
+			══════════════════════════════════════════════════════════════════
+			INDEX PAGE — Category selector
+			══════════════════════════════════════════════════════════════════
+			Categories are fetched dynamically from Firestore.
+			No roadmap data is hardcoded here — adding a new category in the
+			admin panel will immediately make it appear on this page.
+			
+			AUTH STRIP shows:
+			  • "Sign in" link if not logged in
+			  • User email + sign-out + "Admin Panel" link if logged in as admin
+			══════════════════════════════════════════════════════════════════
+			-->
+		<!-- Auth strip: shown/hidden by JS after auth state resolves -->
+		<div class="index-auth-strip" id="auth-strip">
+			<span id="auth-strip-content">
+				<!-- Populated by JS: login link or user email + actions -->
+				<span style="color:#aaa;">Loading…</span>
+			</span>
+		</div>
+		<header class="index-header">
+			<div class="header-inner">
+				<p class="header-eyebrow">Learning Roadmaps Collection</p>
+				<h1 class="index-title">Your <em>path</em> to<br>engineering mastery.</h1>
+				<p class="index-subtitle">
+					Structured, opinionated learning paths — each phase sequenced deliberately
+					so every topic builds on the last.
+				</p>
+			</div>
+		</header>
+		<main class="index-main">
+			<p class="section-eyebrow">Available roadmaps</p>
+			<!--
+				ROADMAP GRID — populated by JS from Firestore.
+				Shows a loading skeleton first, then real cards.
+				-->
+			<div class="roadmap-grid" id="roadmap-grid">
+				<!-- Loading state -->
+				<div style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);padding:var(--sp-8);grid-column:1/-1;">
+					Loading roadmaps…
+				</div>
+			</div>
+		</main>
+		<footer class="index-footer">
+			Learning Roadmaps &nbsp;·&nbsp; Powered by Rebdek
+		</footer>
+		<script type="module">
+			import { onAuthChange, signOut, isAdmin } from './js/auth.js';
+			import { listCategories } from './js/db.js';
+			
+			/* ══════════════════════════════════════════════════════════════
+			   AUTH STRIP
+			   ══════════════════════════════════════════════════════════════ */
+			const $strip = document.getElementById('auth-strip-content');
+			
+			onAuthChange(user => {
+			  if (!user) {
+			    $strip.innerHTML = `<a href="login.html">Sign in to track progress</a>`;
+			  } else {
+			    const adminLink = user.role === 'admin'
+			      ? `<a href="admin.html" style="margin-left:8px;color:var(--amber);">⚙ Admin Panel</a>`
+			      : '';
+			    $strip.innerHTML = `
+			      <span>${escHtml(user.email)}</span>
+			      ${adminLink}
+			      <button onclick="window._signOut()" style="margin-left:8px;">Sign out</button>`;
+			    window._signOut = () => signOut();
+			  }
+			});
+			
+			/* ══════════════════════════════════════════════════════════════
+			   LOAD CATEGORIES FROM FIRESTORE
+			   ══════════════════════════════════════════════════════════════
+			   listCategories() fetches all category documents from Firestore,
+			   sorted by their `order` field. Each document becomes a card.
+			   No data is hardcoded — new categories created in the admin
+			   panel appear automatically.
+			   ══════════════════════════════════════════════════════════════ */
+			const $grid = document.getElementById('roadmap-grid');
+			
+			async function loadAndRenderCategories() {
+			  try {
+			    const categories = await listCategories();
+			
+			    if (!categories.length) {
+			      $grid.innerHTML = `
+			        <div style="grid-column:1/-1;font-size:13px;color:var(--ink-muted);padding:var(--sp-8);text-align:center;">
+			          No roadmaps yet. <a href="admin.html" style="color:var(--indigo);">Add one in the admin panel →</a>
+			        </div>`;
+			      return;
+			    }
+			
+			    /**
+			     * Build card HTML for each category.
+			     * The card links to  details.html?data=<slug>
+			     * All colors, tags, and text come from Firestore — nothing hardcoded.
+			     */
+			    $grid.innerHTML = categories.map((cat, i) => {
+			      const accentColor = cat.accentColor || '#2A4535';
+			      const tags = (cat.tags || []).map((t, ti) => {
+			        const tc = (cat.tagColors && cat.tagColors[ti])
+			          ? cat.tagColors[ti]
+			          : { bg: '#eee', tc: '#333' };
+			        return `<span class="tag" style="background:${escAttr(tc.bg)};color:${escAttr(tc.tc)}">${escHtml(t)}</span>`;
+			      }).join('');
+			
+			      return `
+			        <a class="roadmap-card" href="details.html?data=${encodeURIComponent(cat.slug)}">
+			          <div class="card-accent" style="background:${escAttr(accentColor)};"></div>
+			          <p class="card-number">${String(i + 1).padStart(2, '0')}</p>
+			          <h2 class="card-title">${escHtml(cat.title)}</h2>
+			          <p class="card-desc">${escHtml(cat.description || '')}</p>
+			          <div class="card-tags">${tags}</div>
+			          <span class="card-arrow" aria-hidden="true">↗</span>
+			        </a>`;
+			    }).join('');
+			
+			    // Add the "add new" placeholder at the end (only visible to admins)
+			    $grid.innerHTML += `
+			      <div class="add-card" id="add-placeholder" style="display:none">
+			        <div class="add-card-icon">+</div>
+			        <div>
+			          <p class="add-card-title">Add a new roadmap</p>
+			          <p class="add-card-desc">Go to the <a href="admin.html" style="color:var(--indigo);">Admin Panel</a> to create a new category.</p>
+			        </div>
+			      </div>`;
+			
+			  } catch (err) {
+			    $grid.innerHTML = `
+			      <div style="grid-column:1/-1;font-size:13px;color:var(--red);padding:var(--sp-8);">
+			        Error loading roadmaps: ${escHtml(err.message)}<br/>
+			        Make sure Firebase is configured and Firestore security rules allow reads.
+			      </div>`;
+			  }
+			}
+			
+			// Show "add" placeholder for admins after auth resolves
+			onAuthChange(user => {
+			  const placeholder = document.getElementById('add-placeholder');
+			  if (placeholder && user && user.role === 'admin') {
+			    placeholder.style.display = '';
+			  }
+			});
+			
+			// Load immediately
+			loadAndRenderCategories();			
+			
+			/* ── Utilities ── */
+			function escHtml(s) {
+			  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+			}
+			function escAttr(s) { return escHtml(s); }
+		</script>
+	</body>
 </html>

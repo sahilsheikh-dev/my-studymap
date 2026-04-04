@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Learning Roadmaps</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!--
+  ══════════════════════════════════════════════════════════════════
+  ADMIN PAGE SHELL
+  ══════════════════════════════════════════════════════════════════
+  admin.js handles ALL rendering and logic.
+  This page is a blank container — admin.js populates #admin-app.
+
+  ACCESS CONTROL:
+    admin.js calls requireAuth() then checks isAdmin().
+    If not admin → redirects to index.html.
+    Firestore security rules provide the server-side enforcement.
+  ══════════════════════════════════════════════════════════════════
+-->
+
+<div id="admin-app">
+  <!-- Loading state shown until admin.js takes over -->
+  <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;gap:16px;flex-direction:column;">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Verifying admin access…</p>
+  </div>
+</div>
+
+<!--
+  admin.js is an ES module loaded as type="module".
+  It imports auth.js, db.js, and uses inline rendering.
+  No build step required.
+-->
+<script type="module" src="js/admin.js"></script>
+
+</body>
+</html>
