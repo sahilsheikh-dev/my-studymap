@@ -1,358 +1,322 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Roadmap</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body>
 
-<!--
-  ══════════════════════════════════════════════════════════════════
-  DETAILS PAGE — Roadmap viewer
-  ══════════════════════════════════════════════════════════════════
-  DATA FLOW:
-    1. Read ?data=<slug> from URL
-    2. requireAuth() — redirect to login if not signed in
-    3. getCategory(slug) — fetch all category + topic data from Firestore
-    4. Render nav, overview, and all topic sections
-    5. loadProgress() — restore user's checkbox state from Firestore
-    6. On checkbox change: saveProgress() persists to Firestore
+  <div class="details-root">
 
-  GUEST ACCESS:
-    If you want unauthenticated users to view (but not save progress),
-    change requireAuth() to a softer check and skip loadProgress/saveProgress.
-  ══════════════════════════════════════════════════════════════════
--->
 
-<div class="details-root">
-
-  <!-- ── Sticky topbar ── -->
-  <header class="details-topbar" id="details-topbar">
-    <div class="topbar-inner">
-      <a class="back-link" href="index.html">← All roadmaps</a>
-      <span class="topbar-title" id="topbar-title">Loading…</span>
-      <div class="topbar-right">
-        <span class="topbar-user" id="topbar-user"></span>
-        <a class="topbar-admin-link" href="admin.html" id="admin-link" style="display:none">⚙ Admin</a>
-        <button class="topbar-signout" id="topbar-signout" style="display:none">Sign out</button>
-        <div class="topbar-progress">
-          <span class="progress-label-text">Progress</span>
-          <div class="progress-track">
-            <div class="progress-fill" id="gp-fill" style="width:0%"></div>
+    <header class="details-topbar" id="details-topbar">
+      <div class="topbar-inner">
+        <a class="back-link" href="index.html">← All roadmaps</a>
+        <span class="topbar-title" id="topbar-title">Loading…</span>
+        <div class="topbar-right">
+          <span class="topbar-user" id="topbar-user"></span>
+          <a class="topbar-admin-link" href="admin.html" id="admin-link" style="display:none">⚙ Admin</a>
+          <button class="topbar-signout" id="topbar-signout" style="display:none">Sign out</button>
+          <div class="topbar-progress">
+            <span class="progress-label-text">Progress</span>
+            <div class="progress-track">
+              <div class="progress-fill" id="gp-fill" style="width:0%"></div>
+            </div>
+            <span class="progress-count" id="gp-count">—</span>
           </div>
-          <span class="progress-count" id="gp-count">—</span>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- ── Sticky nav strip ── -->
-  <nav class="nav-strip" id="nav-strip" aria-label="Topic navigation">
-    <div class="nav-strip-inner" id="nav-strip-inner">
-      <!-- Populated by JS -->
-    </div>
-  </nav>
 
-  <!-- ── Main content ── -->
-  <main class="details-content" id="details-content">
-    <div class="loading-screen" id="loading-screen">
-      <div class="loading-spinner"></div>
-      <p class="loading-text">Loading roadmap…</p>
-    </div>
-  </main>
+    <nav class="nav-strip" id="nav-strip" aria-label="Topic navigation">
+      <div class="nav-strip-inner" id="nav-strip-inner">
 
-  <footer class="details-footer" id="details-footer" style="display:none">
-    Learning Roadmaps &nbsp;·&nbsp;
-    <a href="index.html" style="color:inherit;text-decoration:underline;text-underline-offset:3px">Browse all roadmaps</a>
-  </footer>
+      </div>
+    </nav>
 
-</div><!-- /details-root -->
 
-<script type="module">
-  import { requireAuth, signOut, isAdmin } from './js/auth.js';
-  import { getCategory, loadProgress, saveProgress } from './js/db.js';
-  import { renderOverview, renderTopic, renderCheckKey } from './js/renderer.js';
+    <main class="details-content" id="details-content">
+      <div class="loading-screen" id="loading-screen">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading roadmap…</p>
+      </div>
+    </main>
 
-  /* ── State ─────────────────────────────────────────────────── */
-  let _slug       = '';
-  let _user       = null;
-  let _topics     = [];
-  let _phaseLabels = {};
-  let _phaseOrder  = [];
-  let _checkState  = {};  // { "linux::stage_beginner::0": true }
+    <footer class="details-footer" id="details-footer" style="display:none">
+      Learning Roadmaps &nbsp;·&nbsp;
+      <a href="index.html" style="color:inherit;text-decoration:underline;text-underline-offset:3px">Browse all
+        roadmaps</a>
+    </footer>
 
-  // Debounce timer for progress saves (avoid hammering Firestore on rapid clicks)
-  let _saveTimer = null;
+  </div>
 
-  /* ── DOM refs ─────────────────────────────────────────────── */
-  const $title    = document.getElementById('topbar-title');
-  const $gpFill   = document.getElementById('gp-fill');
-  const $gpCount  = document.getElementById('gp-count');
-  const $navInner = document.getElementById('nav-strip-inner');
-  const $content  = document.getElementById('details-content');
-  const $footer   = document.getElementById('details-footer');
-  const $loading  = document.getElementById('loading-screen');
+  <script type="module">
+    import { requireAuth, signOut, isAdmin } from './js/auth.js';
+    import { getCategory, loadProgress, saveProgress } from './js/db.js';
+    import { renderOverview, renderTopic, renderCheckKey } from './js/renderer.js';
 
-  /* ══════════════════════════════════════════════════════════
-     ENTRY POINT
-     ══════════════════════════════════════════════════════════ */
-  (async function bootstrap() {
 
-    /* 1. Require authentication — redirects to login if not signed in */
-    _user = await requireAuth('login.html');
+    let _slug = '';
+    let _user = null;
+    let _topics = [];
+    let _phaseLabels = {};
+    let _phaseOrder = [];
+    let _checkState = {};
 
-    /* 2. Wire up topbar user info */
-    document.getElementById('topbar-user').textContent   = _user.email;
-    document.getElementById('topbar-signout').style.display = '';
-    document.getElementById('topbar-signout').onclick    = () => signOut();
-    if (_user.role === 'admin') {
-      document.getElementById('admin-link').style.display = '';
-    }
 
-    /* 3. Read ?data=<slug> from URL
-          Validate: only a-z, 0-9, hyphens/underscores allowed. */
-    const params = new URLSearchParams(window.location.search);
-    const raw    = params.get('data') || '';
-    _slug        = raw.replace(/[^a-zA-Z0-9\-_]/g, '');
+    let _saveTimer = null;
 
-    if (!_slug) {
-      showError('Missing roadmap slug.',
-        'No <code>?data=</code> parameter found in the URL. <a href="index.html">Go back</a>.');
-      return;
-    }
 
-    /* 4. Fetch category + topics from Firestore */
-    let categoryData;
-    try {
-      categoryData = await getCategory(_slug);
-    } catch (err) {
-      showError('Firestore error', err.message);
-      return;
-    }
+    const $title = document.getElementById('topbar-title');
+    const $gpFill = document.getElementById('gp-fill');
+    const $gpCount = document.getElementById('gp-count');
+    const $navInner = document.getElementById('nav-strip-inner');
+    const $content = document.getElementById('details-content');
+    const $footer = document.getElementById('details-footer');
+    const $loading = document.getElementById('loading-screen');
 
-    if (!categoryData) {
-      showError('Roadmap not found',
-        `No category with slug "<code>${_slug}</code>" exists in Firestore. <a href="index.html">Go back</a>.`);
-      return;
-    }
+    (async function bootstrap() {
 
-    _topics      = categoryData.topics;
-    _phaseLabels = categoryData.phaseLabels;
-    _phaseOrder  = categoryData.phaseOrder;
 
-    /* 5. Update page title */
-    const roadmapTitle = categoryData.meta?.title || _slug;
-    document.title     = `${roadmapTitle} — Roadmap`;
-    $title.textContent = roadmapTitle;
+      _user = await requireAuth('login.html');
 
-    /* 6. Load user's saved progress from Firestore */
-    _checkState = await loadProgress(_user.uid, _slug);
 
-    /* 7. Build the UI */
-    buildNav();
-    buildAllSections();
-    updateGlobalProgress();
-
-    /* 8. Register the global checkbox handler used by renderer.js */
-    window._onCheck = handleCheckboxChange;
-
-    $footer.style.display = '';
-
-  })();
-
-  /* ══════════════════════════════════════════════════════════
-     NAV STRIP
-     ══════════════════════════════════════════════════════════ */
-  function buildNav() {
-    $navInner.innerHTML = '';
-
-    // Determine display order for phases
-    const orderedPhases = (_phaseOrder.length ? _phaseOrder : inferPhaseOrder());
-
-    // Group topics by phase
-    const byPhase = {};
-    _topics.forEach(t => {
-      if (!byPhase[t.phase]) byPhase[t.phase] = [];
-      byPhase[t.phase].push(t);
-    });
-
-    orderedPhases.forEach(phase => {
-      const topics = byPhase[phase];
-      if (!topics) return;
-
-      if (phase !== 'overview') {
-        const lbl = document.createElement('span');
-        lbl.className   = 'phase-divider';
-        lbl.textContent = _phaseLabels[phase] || phase;
-        $navInner.appendChild(lbl);
+      document.getElementById('topbar-user').textContent = _user.email;
+      document.getElementById('topbar-signout').style.display = '';
+      document.getElementById('topbar-signout').onclick = () => signOut();
+      if (_user.role === 'admin') {
+        document.getElementById('admin-link').style.display = '';
       }
 
-      topics.forEach(t => {
-        const btn = document.createElement('button');
-        btn.className = 'nav-btn';
-        btn.id        = `btn-${t.id}`;
-        btn.textContent = t.label;
-        btn.setAttribute('aria-label', `Go to ${t.label}`);
-        btn.addEventListener('click', () => showSection(t.id));
-        $navInner.appendChild(btn);
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get('data') || '';
+      _slug = raw.replace(/[^a-zA-Z0-9\-_]/g, '');
+
+      if (!_slug) {
+        showError('Missing roadmap slug.',
+          'No <code>?data=</code> parameter found in the URL. <a href="index.html">Go back</a>.');
+        return;
+      }
+
+
+      let categoryData;
+      try {
+        categoryData = await getCategory(_slug);
+      } catch (err) {
+        showError('Firestore error', err.message);
+        return;
+      }
+
+      if (!categoryData) {
+        showError('Roadmap not found',
+          `No category with slug "<code>${_slug}</code>" exists in Firestore. <a href="index.html">Go back</a>.`);
+        return;
+      }
+
+      _topics = categoryData.topics;
+      _phaseLabels = categoryData.phaseLabels;
+      _phaseOrder = categoryData.phaseOrder;
+
+
+      const roadmapTitle = categoryData.meta?.title || _slug;
+      document.title = `${roadmapTitle} — Roadmap`;
+      $title.textContent = roadmapTitle;
+
+
+      _checkState = await loadProgress(_user.uid, _slug);
+
+
+      buildNav();
+      buildAllSections();
+      updateGlobalProgress();
+
+
+      window._onCheck = handleCheckboxChange;
+
+      $footer.style.display = '';
+
+    })();
+
+    function buildNav() {
+      $navInner.innerHTML = '';
+
+
+      const orderedPhases = (_phaseOrder.length ? _phaseOrder : inferPhaseOrder());
+
+
+      const byPhase = {};
+      _topics.forEach(t => {
+        if (!byPhase[t.phase]) byPhase[t.phase] = [];
+        byPhase[t.phase].push(t);
       });
-    });
-  }
 
-  /* ══════════════════════════════════════════════════════════
-     SECTION BUILDING
-     ══════════════════════════════════════════════════════════ */
-  function buildAllSections() {
-    $loading.remove(); // remove spinner
+      orderedPhases.forEach(phase => {
+        const topics = byPhase[phase];
+        if (!topics) return;
 
-    _topics.forEach(t => {
-      const panel = document.createElement('section');
-      panel.className = 'section-panel';
-      panel.id        = `sec-${t.id}`;
+        if (phase !== 'overview') {
+          const lbl = document.createElement('span');
+          lbl.className = 'phase-divider';
+          lbl.textContent = _phaseLabels[phase] || phase;
+          $navInner.appendChild(lbl);
+        }
 
-      panel.innerHTML = t.id === 'overview'
-        ? renderOverview(_topics, _phaseLabels, _phaseOrder, _checkState)
-        : renderTopic(t, _phaseLabels, _checkState);
-
-      $content.appendChild(panel);
-    });
-
-    // Wire overview jump cards (rendered as divs with data-show attribute)
-    $content.addEventListener('click', e => {
-      const card = e.target.closest('[data-show]');
-      if (card) showSection(card.dataset.show);
-    });
-
-    // Show overview first
-    showSection('overview');
-  }
-
-  function showSection(id) {
-    document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('visible'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-
-    const panel = document.getElementById(`sec-${id}`);
-    const btn   = document.getElementById(`btn-${id}`);
-    if (panel) panel.classList.add('visible');
-    if (btn)   { btn.classList.add('active'); btn.scrollIntoView({ inline:'nearest', block:'nearest' }); }
-
-    if (id !== 'overview') updateTopicProgress(id);
-  }
-
-  /* ══════════════════════════════════════════════════════════
-     PROGRESS TRACKING
-     ══════════════════════════════════════════════════════════ */
-
-  /**
-   * Called by every checkbox onchange (set as window._onCheck in renderer.js).
-   * Updates local state, re-renders progress bars, then debounces a Firestore save.
-   */
-  function handleCheckboxChange(el) {
-    const key     = el.dataset.key;
-    const checked = el.checked;
-
-    // Update local state
-    _checkState[key] = checked;
-
-    // Toggle done class on the label
-    el.closest('label').classList.toggle('done', checked);
-
-    // Update progress bars
-    const topicId = key.split('::')[0];
-    updateTopicProgress(topicId);
-    updateGlobalProgress();
-
-    // Debounced Firestore save (saves 500ms after last change)
-    clearTimeout(_saveTimer);
-    _saveTimer = setTimeout(() => {
-      saveProgress(_user.uid, _slug, _checkState);
-    }, 500);
-  }
-
-  /**
-   * Counts done/total items for all topics from local _checkState.
-   */
-  function getTopicCounts(topicId) {
-    const t = _topics.find(x => x.id === topicId);
-    if (!t) return { done: 0, total: 0 };
-
-    let done = 0, total = 0;
-
-    // Count stage checkboxes
-    if (t.stages) {
-      ['beginner','intermediate','advanced'].forEach((sKey, si) => {
-        if (!t.stages[si]) return;
-        t.stages[si].items.forEach((_, i) => {
-          total++;
-          if (_checkState[renderCheckKey(topicId, `stage_${sKey}`, i)]) done++;
+        topics.forEach(t => {
+          const btn = document.createElement('button');
+          btn.className = 'nav-btn';
+          btn.id = `btn-${t.id}`;
+          btn.textContent = t.label;
+          btn.setAttribute('aria-label', `Go to ${t.label}`);
+          btn.addEventListener('click', () => showSection(t.id));
+          $navInner.appendChild(btn);
         });
       });
     }
 
-    // Count info-card and ready checkboxes
-    ['projects','usecases','mistakes','ready'].forEach(sec => {
-      if (!Array.isArray(t[sec])) return;
-      t[sec].forEach((_, i) => {
-        total++;
-        if (_checkState[renderCheckKey(topicId, sec, i)]) done++;
+    function buildAllSections() {
+      $loading.remove();
+
+      _topics.forEach(t => {
+        const panel = document.createElement('section');
+        panel.className = 'section-panel';
+        panel.id = `sec-${t.id}`;
+
+        panel.innerHTML = t.id === 'overview'
+          ? renderOverview(_topics, _phaseLabels, _phaseOrder, _checkState)
+          : renderTopic(t, _phaseLabels, _checkState);
+
+        $content.appendChild(panel);
       });
-    });
 
-    return { done, total };
-  }
 
-  /** Updates the ready-checklist progress bar for a single topic. */
-  function updateTopicProgress(topicId) {
-    const t = _topics.find(x => x.id === topicId);
-    if (!t || !t.ready) return;
+      $content.addEventListener('click', e => {
+        const card = e.target.closest('[data-show]');
+        if (card) showSection(card.dataset.show);
+      });
 
-    let rdone = 0;
-    t.ready.forEach((_, i) => {
-      if (_checkState[renderCheckKey(topicId, 'ready', i)]) rdone++;
-    });
 
-    const bar = document.getElementById(`ready-bar-${topicId}`);
-    const lbl = document.getElementById(`ready-lbl-${topicId}`);
-    if (bar) bar.style.width = Math.round((rdone / t.ready.length) * 100) + '%';
-    if (lbl) lbl.textContent = `${rdone} / ${t.ready.length} completed`;
-  }
+      showSection('overview');
+    }
 
-  /** Updates the global topbar progress bar. */
-  function updateGlobalProgress() {
-    let totalDone = 0, totalAll = 0;
-    _topics.filter(t => t.id !== 'overview').forEach(t => {
-      const { done, total } = getTopicCounts(t.id);
-      totalDone += done; totalAll += total;
-    });
-    const pct = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0;
-    $gpFill.style.width  = pct + '%';
-    $gpCount.textContent = `${totalDone}/${totalAll} (${pct}%)`;
-  }
+    function showSection(id) {
+      document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('visible'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
-  /* ══════════════════════════════════════════════════════════
-     ERROR SCREEN
-     ══════════════════════════════════════════════════════════ */
-  function showError(title, detail) {
-    $loading.innerHTML = `
+      const panel = document.getElementById(`sec-${id}`);
+      const btn = document.getElementById(`btn-${id}`);
+      if (panel) panel.classList.add('visible');
+      if (btn) { btn.classList.add('active'); btn.scrollIntoView({ inline: 'nearest', block: 'nearest' }); }
+
+      if (id !== 'overview') updateTopicProgress(id);
+    }
+
+    function handleCheckboxChange(el) {
+      const key = el.dataset.key;
+      const checked = el.checked;
+
+
+      _checkState[key] = checked;
+
+
+      el.closest('label').classList.toggle('done', checked);
+
+
+      const topicId = key.split('::')[0];
+      updateTopicProgress(topicId);
+      updateGlobalProgress();
+
+
+      clearTimeout(_saveTimer);
+      _saveTimer = setTimeout(() => {
+        saveProgress(_user.uid, _slug, _checkState);
+      }, 500);
+    }
+
+
+    function getTopicCounts(topicId) {
+      const t = _topics.find(x => x.id === topicId);
+      if (!t) return { done: 0, total: 0 };
+
+      let done = 0, total = 0;
+
+
+      if (t.stages) {
+        ['beginner', 'intermediate', 'advanced'].forEach((sKey, si) => {
+          if (!t.stages[si]) return;
+          t.stages[si].items.forEach((_, i) => {
+            total++;
+            if (_checkState[renderCheckKey(topicId, `stage_${sKey}`, i)]) done++;
+          });
+        });
+      }
+
+
+      ['projects', 'usecases', 'mistakes', 'ready'].forEach(sec => {
+        if (!Array.isArray(t[sec])) return;
+        t[sec].forEach((_, i) => {
+          total++;
+          if (_checkState[renderCheckKey(topicId, sec, i)]) done++;
+        });
+      });
+
+      return { done, total };
+    }
+
+
+    function updateTopicProgress(topicId) {
+      const t = _topics.find(x => x.id === topicId);
+      if (!t || !t.ready) return;
+
+      let rdone = 0;
+      t.ready.forEach((_, i) => {
+        if (_checkState[renderCheckKey(topicId, 'ready', i)]) rdone++;
+      });
+
+      const bar = document.getElementById(`ready-bar-${topicId}`);
+      const lbl = document.getElementById(`ready-lbl-${topicId}`);
+      if (bar) bar.style.width = Math.round((rdone / t.ready.length) * 100) + '%';
+      if (lbl) lbl.textContent = `${rdone} / ${t.ready.length} completed`;
+    }
+
+
+    function updateGlobalProgress() {
+      let totalDone = 0, totalAll = 0;
+      _topics.filter(t => t.id !== 'overview').forEach(t => {
+        const { done, total } = getTopicCounts(t.id);
+        totalDone += done; totalAll += total;
+      });
+      const pct = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0;
+      $gpFill.style.width = pct + '%';
+      $gpCount.textContent = `${totalDone}/${totalAll} (${pct}%)`;
+    }
+
+    function showError(title, detail) {
+      $loading.innerHTML = `
       <div class="error-screen">
         <p class="error-code">!</p>
         <p class="error-message"><strong>${title}</strong><br/>${detail}</p>
         <a class="btn btn-secondary" href="index.html">← Back to roadmaps</a>
       </div>`;
-  }
+    }
 
-  /* ── Helpers ─────────────────────────────────────────────── */
-  function inferPhaseOrder() {
-    const seen = new Set(), order = [];
-    _topics.forEach(t => { if (!seen.has(t.phase)) { seen.add(t.phase); order.push(t.phase); } });
-    return order;
-  }
-</script>
+
+    function inferPhaseOrder() {
+      const seen = new Set(), order = [];
+      _topics.forEach(t => { if (!seen.has(t.phase)) { seen.add(t.phase); order.push(t.phase); } });
+      return order;
+    }
+  </script>
 
 </body>
+
 </html>

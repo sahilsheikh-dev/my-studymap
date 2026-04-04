@@ -1,73 +1,40 @@
-/**
- * renderer.js
- * ═══════════════════════════════════════════════════════════════════
- * Pure rendering module — converts Firestore data into DOM HTML.
- * Has NO Firebase imports — takes plain JS objects and returns HTML strings.
- *
- * EXPORTS
- * ───────
- *   renderOverview(topics, phaseLabels, phaseOrder)   → HTML string
- *   renderTopic(topic, phaseLabels)                   → HTML string
- *   renderCheckKey(topicId, section, index)           → string key
- *
- * All checkbox keys follow the format:  "<topicId>::<section>::<index>"
- * e.g.  "linux::stage_beginner::0"  or  "linux::projects::2"
- * ═══════════════════════════════════════════════════════════════════
- */
-
-/* ── Phase color palette ─────────────────────────────────────────── */
 const PHASE_COLORS = {
-  overview:      { bg: '#F5F3EE', tc: '#5C5850' },
-  foundation:    { bg: '#E8F5EE', tc: '#085041' },
-  platform:      { bg: '#EEEDFE', tc: '#342E7A' },
-  cloud:         { bg: '#FEF8EC', tc: '#7A5C1A' },
+  overview: { bg: '#F5F3EE', tc: '#5C5850' },
+  foundation: { bg: '#E8F5EE', tc: '#085041' },
+  platform: { bg: '#EEEDFE', tc: '#342E7A' },
+  cloud: { bg: '#FEF8EC', tc: '#7A5C1A' },
   observability: { bg: '#FAECE7', tc: '#993C1D' },
-  scripting:     { bg: '#EAF3DE', tc: '#27500A' },
-  java_core:     { bg: '#EEEDFE', tc: '#342E7A' },
-  backend:       { bg: '#E6F1FB', tc: '#0C447C' },
-  databases:     { bg: '#FCE4EC', tc: '#880E4F' },
+  scripting: { bg: '#EAF3DE', tc: '#27500A' },
+  java_core: { bg: '#EEEDFE', tc: '#342E7A' },
+  backend: { bg: '#E6F1FB', tc: '#0C447C' },
+  databases: { bg: '#FCE4EC', tc: '#880E4F' },
   system_design: { bg: '#F3E5F5', tc: '#4A148C' },
-  devops:        { bg: '#E6F1FB', tc: '#0C447C' },
-  testing:       { bg: '#EAF3DE', tc: '#27500A' },
-  projects:      { bg: '#E1F5EE', tc: '#085041' },
-  interviews:    { bg: '#FEF8EC', tc: '#7A5C1A' },
+  devops: { bg: '#E6F1FB', tc: '#0C447C' },
+  testing: { bg: '#EAF3DE', tc: '#27500A' },
+  projects: { bg: '#E1F5EE', tc: '#085041' },
+  interviews: { bg: '#FEF8EC', tc: '#7A5C1A' },
 };
 
-/* ── Safety helpers ──────────────────────────────────────────────── */
+
+
 function escHtml(str) {
   if (typeof str !== 'string') return String(str ?? '');
   return str
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
+
 function escAttr(str) { return escHtml(String(str ?? '')); }
 
-/**
- * Builds the checkbox key string used for progress tracking.
- * @param {string} topicId
- * @param {string} section   — e.g. "stage_beginner", "projects", "ready"
- * @param {number} index
- * @returns {string}
- */
 export function renderCheckKey(topicId, section, index) {
   return `${topicId}::${section}::${index}`;
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   OVERVIEW RENDERER
-   ══════════════════════════════════════════════════════════════════ */
-
-/**
- * Renders the overview section: phase summary cards + jump grid.
- *
- * @param {Array}  topics      — all topics for this roadmap
- * @param {object} phaseLabels — { phase_id: "Display Name" }
- * @param {Array}  phaseOrder  — ordered list of phase ids
- * @param {object} checkState  — { "key": true/false } from Firestore progress
- * @returns {string} HTML
- */
 export function renderOverview(topics, phaseLabels, phaseOrder, checkState = {}) {
-  // Group topics by phase
+
   const byPhase = {};
   topics.filter(t => t.id !== 'overview').forEach(t => {
     if (!byPhase[t.phase]) byPhase[t.phase] = [];
@@ -80,7 +47,7 @@ export function renderOverview(topics, phaseLabels, phaseOrder, checkState = {})
 
   let html = '';
 
-  // ── Phase summary cards ──────────────────────────────────────
+
   html += `<div class="overview-phases">`;
   orderedPhases.forEach(phase => {
     const ts = byPhase[phase] || [];
@@ -97,7 +64,7 @@ export function renderOverview(topics, phaseLabels, phaseOrder, checkState = {})
   });
   html += `</div>`;
 
-  // ── Jump grid ────────────────────────────────────────────────
+
   html += `<p class="overview-jump-heading">Jump to a topic</p>`;
   html += `<div class="jump-grid">`;
   topics.filter(t => t.id !== 'overview').forEach((t, i) => {
@@ -119,23 +86,12 @@ export function renderOverview(topics, phaseLabels, phaseOrder, checkState = {})
   return html;
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   TOPIC RENDERER
-   ══════════════════════════════════════════════════════════════════ */
 
-/**
- * Renders a single topic's full detail section.
- *
- * @param {object} topic       — topic data from Firestore
- * @param {object} phaseLabels — { phase_id: "Display Name" }
- * @param {object} checkState  — { "key": true/false }
- * @returns {string} HTML
- */
 export function renderTopic(topic, phaseLabels, checkState = {}) {
   const t = topic;
   let html = '';
 
-  // ── Header: title, why, badges ───────────────────────────────
+
   const badges = (t.badges || [])
     .map(b => `<span class="badge ${escAttr(b.c)}">${escHtml(b.t)}</span>`)
     .join('');
@@ -150,7 +106,7 @@ export function renderTopic(topic, phaseLabels, checkState = {}) {
       <div class="topic-badges">${badges}${phaseBadge}</div>
     </div>`;
 
-  // ── Prerequisites ────────────────────────────────────────────
+
   if (Array.isArray(t.prereqs) && t.prereqs.length) {
     html += `
       <div class="prereqs-bar">
@@ -158,23 +114,23 @@ export function renderTopic(topic, phaseLabels, checkState = {}) {
       </div>`;
   }
 
-  // ── Learning stages ──────────────────────────────────────────
+
   if (Array.isArray(t.stages) && t.stages.length) {
-    const stageKeys    = ['beginner', 'intermediate', 'advanced'];
+    const stageKeys = ['beginner', 'intermediate', 'advanced'];
     const stageClasses = ['stage-beginner', 'stage-intermediate', 'stage-advanced'];
-    const stageLabels  = ['Beginner', 'Intermediate', 'Advanced'];
+    const stageLabels = ['Beginner', 'Intermediate', 'Advanced'];
 
     html += `<p class="stages-heading">Learning progression</p>`;
     html += `<div class="stages-grid">`;
 
     t.stages.forEach((stage, i) => {
-      const sKey    = stageKeys[i];
-      const sClass  = stageClasses[i];
-      const sLabel  = stageLabels[i];
-      const items   = (stage.items || []).map((x, j) => {
-        const key     = renderCheckKey(t.id, `stage_${sKey}`, j);
+      const sKey = stageKeys[i];
+      const sClass = stageClasses[i];
+      const sLabel = stageLabels[i];
+      const items = (stage.items || []).map((x, j) => {
+        const key = renderCheckKey(t.id, `stage_${sKey}`, j);
         const checked = checkState[key] ? 'checked' : '';
-        const done    = checkState[key] ? 'done' : '';
+        const done = checkState[key] ? 'done' : '';
         return `
           <label class="check-item ${done}">
             <input type="checkbox" data-key="${escAttr(key)}" ${checked}
@@ -193,11 +149,11 @@ export function renderTopic(topic, phaseLabels, checkState = {}) {
     html += `</div>`;
   }
 
-  // ── Info cards (projects, usecases, mistakes, production) ────
+
   const INFO_SECTIONS = [
-    { key: 'projects',   title: 'Hands-on projects' },
-    { key: 'usecases',   title: 'Real-world use cases' },
-    { key: 'mistakes',   title: 'Common beginner mistakes' },
+    { key: 'projects', title: 'Hands-on projects' },
+    { key: 'usecases', title: 'Real-world use cases' },
+    { key: 'mistakes', title: 'Common beginner mistakes' },
     { key: 'production', title: 'How it is used in production' },
   ];
 
@@ -211,9 +167,9 @@ export function renderTopic(topic, phaseLabels, checkState = {}) {
       let bodyHtml = '';
       if (Array.isArray(val)) {
         bodyHtml = val.map((x, i) => {
-          const ck      = renderCheckKey(t.id, key, i);
+          const ck = renderCheckKey(t.id, key, i);
           const checked = checkState[ck] ? 'checked' : '';
-          const done    = checkState[ck] ? 'done' : '';
+          const done = checkState[ck] ? 'done' : '';
           return `
             <label class="check-item ${done}">
               <input type="checkbox" data-key="${escAttr(ck)}" ${checked}
@@ -234,10 +190,10 @@ export function renderTopic(topic, phaseLabels, checkState = {}) {
     html += `</div>`;
   }
 
-  // ── Ready checklist ──────────────────────────────────────────
+
   if (Array.isArray(t.ready) && t.ready.length) {
     const readyDone = t.ready.filter((_, i) => checkState[renderCheckKey(t.id, 'ready', i)]).length;
-    const readyPct  = Math.round((readyDone / t.ready.length) * 100);
+    const readyPct = Math.round((readyDone / t.ready.length) * 100);
 
     html += `<p class="ready-heading">Ready to move on when you can:</p>`;
     html += `<p class="ready-progress-label" id="ready-lbl-${escAttr(t.id)}">${readyDone} / ${t.ready.length} completed</p>`;
@@ -247,9 +203,9 @@ export function renderTopic(topic, phaseLabels, checkState = {}) {
       </div>`;
     html += `<div class="ready-list">`;
     t.ready.forEach((r, i) => {
-      const key     = renderCheckKey(t.id, 'ready', i);
+      const key = renderCheckKey(t.id, 'ready', i);
       const checked = checkState[key] ? 'checked' : '';
-      const done    = checkState[key] ? 'done' : '';
+      const done = checkState[key] ? 'done' : '';
       html += `
         <label class="ready-item ${done}">
           <input type="checkbox" data-key="${escAttr(key)}" ${checked}

@@ -11,22 +11,9 @@
 </head>
 <body>
 
-<!--
-  ══════════════════════════════════════════════════════════════════
-  ADMIN PAGE SHELL
-  ══════════════════════════════════════════════════════════════════
-  admin.js handles ALL rendering and logic.
-  This page is a blank container — admin.js populates #admin-app.
-
-  ACCESS CONTROL:
-    admin.js calls requireAuth() then checks isAdmin().
-    If not admin → redirects to index.html.
-    Firestore security rules provide the server-side enforcement.
-  ══════════════════════════════════════════════════════════════════
--->
 
 <div id="admin-app">
-  <!-- Loading state shown until admin.js takes over -->
+  
   <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;gap:16px;flex-direction:column;">
     <div class="loading-spinner"></div>
     <p class="loading-text">Verifying admin access…</p>
