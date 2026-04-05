@@ -4,6 +4,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  min-width: 0;
 }
 
 :root {
@@ -67,6 +68,12 @@ body {
   font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 a {
@@ -765,8 +772,8 @@ code {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: var(--sp-4);
-  flex-wrap: nowrap;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
 }
 
 .back-link {
@@ -804,8 +811,9 @@ code {
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: var(--sp-4);
-  flex-shrink: 0;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .topbar-user {
@@ -911,8 +919,8 @@ code {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  width: max-content;
-  min-width: 100%;
+  display: inline-flex;
+  min-width: max-content;
 }
 
 .phase-divider {
@@ -958,6 +966,7 @@ code {
   margin: 0 auto;
   width: 100%;
   padding: var(--sp-6) var(--sp-5) var(--sp-16);
+  overflow-x: hidden;
 }
 
 .overview-phases {
@@ -1208,7 +1217,7 @@ code {
 
 @media (min-width: 768px) {
   .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   }
 }
 
@@ -1888,6 +1897,31 @@ code {
 @media (max-width: 640px) {
   .admin-form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .topbar-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .topbar-title {
+    width: 100%;
+    white-space: normal;
+  }
+
+  .topbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .progress-track {
+    width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar-user {
+    display: none;
   }
 }
 
