@@ -74,9 +74,9 @@ function renderShell() {
             + New category
           </button>
         </div>
+      
         <div class="admin-sidebar-section">
           <p class="admin-sidebar-heading">Navigation</p>
-          <button class="admin-nav-link" onclick="window._showView('topics')">Topics</button>
           <button class="admin-nav-link" onclick="window._showView('users')">Users &amp; Roles</button>
         </div>
       </aside>
