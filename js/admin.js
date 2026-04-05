@@ -1,10 +1,16 @@
-import { requireAuth, isAdmin, signOut, refreshCurrentUser } from './auth.js';
+import { requireAuth, isAdmin, signOut, refreshCurrentUser } from "./auth.js";
 import {
-  listCategories, getCategory, createCategory, updateCategory, deleteCategory,
-  listTopics, setTopic, deleteTopic,
-  listUsers, setUserRole
-} from './db.js';
-
+  listCategories,
+  getCategory,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  listTopics,
+  setTopic,
+  deleteTopic,
+  listUsers,
+  setUserRole,
+} from "./db.js";
 
 let _categories = [];
 let _activeSlug = null;
@@ -12,19 +18,18 @@ let _topics = [];
 let _users = [];
 let _currentUser = null;
 
-const $app = document.getElementById('admin-app');
+const $app = document.getElementById("admin-app");
 (async function bootstrap() {
   try {
-    _currentUser = await requireAuth('login.html');
+    _currentUser = await requireAuth("login.html");
 
-    if (_currentUser.role !== 'admin') {
-      window.location.href = 'index.html';
+    if (_currentUser.role !== "admin") {
+      window.location.href = "index.html";
       return;
     }
 
     renderShell();
     await Promise.all([loadCategories(), loadUsers()]);
-
   } catch (err) {
     $app.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;font-family:system-ui;">
@@ -91,12 +96,12 @@ async function loadCategories() {
     _categories = await listCategories();
     renderCategoryList();
   } catch (err) {
-    toast('Failed to load categories: ' + err.message, 'error');
+    toast("Failed to load categories: " + err.message, "error");
   }
 }
 
 function renderCategoryList() {
-  const $list = document.getElementById('cat-list');
+  const $list = document.getElementById("cat-list");
   if (!$list) return;
 
   if (!_categories.length) {
@@ -104,13 +109,17 @@ function renderCategoryList() {
     return;
   }
 
-  $list.innerHTML = _categories.map(cat => `
-    <div class="admin-cat-item ${cat.slug === _activeSlug ? 'active' : ''}"
+  $list.innerHTML = _categories
+    .map(
+      (cat) => `
+    <div class="admin-cat-item ${cat.slug === _activeSlug ? "active" : ""}"
          onclick="window._selectCategory('${escAttr(cat.slug)}')">
-      <span class="admin-cat-dot" style="background:${escAttr(cat.accentColor || '#666')}"></span>
+      <span class="admin-cat-dot" style="background:${escAttr(cat.accentColor || "#666")}"></span>
       <span class="admin-cat-name">${escHtml(cat.title)}</span>
     </div>
-  `).join('');
+  `,
+    )
+    .join("");
 
   window._selectCategory = (slug) => selectCategory(slug);
 }
@@ -118,14 +127,14 @@ function renderCategoryList() {
 async function selectCategory(slug) {
   _activeSlug = slug;
   renderCategoryList();
-  await showView('topics');
+  await showView("topics");
 }
 
 async function showView(view) {
-  const $main = document.getElementById('admin-main');
+  const $main = document.getElementById("admin-main");
   if (!$main) return;
 
-  if (view === 'topics') {
+  if (view === "topics") {
     if (!_activeSlug) {
       $main.innerHTML = `<div class="admin-empty-state"><p class="admin-empty-text">Select a category first.</p></div>`;
       return;
@@ -133,13 +142,12 @@ async function showView(view) {
     $main.innerHTML = `<div class="admin-loading">Loading topics…</div>`;
     try {
       _topics = await listTopics(_activeSlug);
-      const cat = _categories.find(c => c.slug === _activeSlug);
+      const cat = _categories.find((c) => c.slug === _activeSlug);
       renderTopicsView($main, cat);
     } catch (err) {
       $main.innerHTML = `<div class="admin-error">Failed to load topics: ${escHtml(err.message)}</div>`;
     }
-
-  } else if (view === 'users') {
+  } else if (view === "users") {
     $main.innerHTML = `<div class="admin-loading">Loading users…</div>`;
     try {
       _users = await listUsers();
@@ -149,8 +157,6 @@ async function showView(view) {
     }
   }
 }
-
-
 
 function renderTopicsView($main, cat) {
   $main.innerHTML = `
@@ -175,33 +181,36 @@ function renderTopicsView($main, cat) {
       </div>
     </div>
     <div class="admin-topics-grid" id="topics-grid">
-      ${_topics.length
-      ? _topics.map(t => renderTopicCard(t)).join('')
-      : `<div class="admin-empty-state"><p class="admin-empty-text">No topics yet. Click "+ Add topic".</p></div>`
-    }
+      ${
+        _topics.length
+          ? _topics.map((t) => renderTopicCard(t)).join("")
+          : `<div class="admin-empty-state"><p class="admin-empty-text">No topics yet. Click "+ Add topic".</p></div>`
+      }
     </div>`;
 
   window._openTopicModal = (id) => openTopicModal(id);
-  window._confirmDeleteTopic = (id) => confirmDelete(
-    `Delete topic "${id}"? This cannot be undone.`, () => doDeleteTopic(id)
-  );
-  window._confirmDeleteCategory = (slug) => confirmDelete(
-    `Delete category "${slug}" and ALL its topics? This cannot be undone.`,
-    () => doDeleteCategory(slug)
-  );
+  window._confirmDeleteTopic = (id) =>
+    confirmDelete(`Delete topic "${id}"? This cannot be undone.`, () =>
+      doDeleteTopic(id),
+    );
+  window._confirmDeleteCategory = (slug) =>
+    confirmDelete(
+      `Delete category "${slug}" and ALL its topics? This cannot be undone.`,
+      () => doDeleteCategory(slug),
+    );
   window._openCategoryModal = (slug) => openCategoryModal(slug || null);
 }
 
 function renderTopicCard(t) {
-  const preview = (t.why || '').substring(0, 100);
+  const preview = (t.why || "").substring(0, 100);
   return `
     <div class="admin-topic-card">
       <div class="admin-topic-card-header">
         <span class="admin-topic-id">${escHtml(t.id)}</span>
-        <span class="admin-topic-phase">${escHtml(t.phase || '')}</span>
+        <span class="admin-topic-phase">${escHtml(t.phase || "")}</span>
       </div>
       <p class="admin-topic-title">${escHtml(t.title || t.label || t.id)}</p>
-      <p class="admin-topic-why">${escHtml(preview)}${preview.length >= 100 ? '…' : ''}</p>
+      <p class="admin-topic-why">${escHtml(preview)}${preview.length >= 100 ? "…" : ""}</p>
       <div class="admin-topic-actions">
         <button class="admin-btn-sm admin-btn-secondary"
                 onclick="window._openTopicModal('${escAttr(t.id)}')">Edit</button>
@@ -210,8 +219,6 @@ function renderTopicCard(t) {
       </div>
     </div>`;
 }
-
-
 
 function renderUsersView($main) {
   $main.innerHTML = `
@@ -235,29 +242,34 @@ function renderUsersView($main) {
           </tr>
         </thead>
         <tbody>
-          ${_users.map(u => renderUserRow(u)).join('')}
+          ${_users.map((u) => renderUserRow(u)).join("")}
         </tbody>
       </table>
     </div>`;
 
   window._toggleRole = async (uid, currentRole, email) => {
-    const newRole = currentRole === 'admin' ? 'user' : 'admin';
+    const newRole = currentRole === "admin" ? "user" : "admin";
 
-    if (uid === _currentUser.uid && newRole === 'user') {
-      toast('You cannot demote your own admin account.', 'error');
+    if (uid === _currentUser.uid && newRole === "user") {
+      toast("You cannot demote your own admin account.", "error");
       return;
     }
 
-    if (!confirm(`${newRole === 'admin' ? 'Promote' : 'Demote'} ${email} to "${newRole}"?`)) return;
+    if (
+      !confirm(
+        `${newRole === "admin" ? "Promote" : "Demote"} ${email} to "${newRole}"?`,
+      )
+    )
+      return;
 
     try {
       await setUserRole(uid, newRole);
-      toast(`${email} is now "${newRole}"`, 'success');
+      toast(`${email} is now "${newRole}"`, "success");
       await refreshCurrentUser();
       _users = await listUsers();
       renderUsersView($main);
     } catch (e) {
-      toast('Error updating role: ' + e.message, 'error');
+      toast("Error updating role: " + e.message, "error");
     }
   };
 }
@@ -266,29 +278,30 @@ function renderUserRow(u) {
   const isSelf = u.uid === _currentUser.uid;
   const joinedDate = u.createdAt?.toDate
     ? u.createdAt.toDate().toLocaleDateString()
-    : '—';
+    : "—";
 
   return `
     <tr>
       <td>
         ${escHtml(u.email)}
-        ${isSelf ? '<span style="font-size:10px;background:#EEEDFE;color:#3C3489;padding:1px 6px;border-radius:99px;margin-left:6px;">you</span>' : ''}
+        ${isSelf ? '<span style="font-size:10px;background:#EEEDFE;color:#3C3489;padding:1px 6px;border-radius:99px;margin-left:6px;">you</span>' : ""}
       </td>
-      <td>${escHtml(u.displayName || '—')}</td>
+      <td>${escHtml(u.displayName || "—")}</td>
       <td>
-        <span class="admin-role-badge admin-role-${u.role || 'user'}">
-          ${escHtml(u.role || 'user')}
+        <span class="admin-role-badge admin-role-${u.role || "user"}">
+          ${escHtml(u.role || "user")}
         </span>
       </td>
       <td style="font-size:12px;color:#888">${joinedDate}</td>
       <td>
-        ${isSelf
-      ? `<span style="font-size:11px;color:#aaa">Cannot modify own role</span>`
-      : `<button class="admin-btn-sm admin-btn-secondary"
-                     onclick="window._toggleRole('${escAttr(u.uid)}','${escAttr(u.role || 'user')}','${escAttr(u.email)}')">
-               ${u.role === 'admin' ? 'Demote to user' : 'Promote to admin'}
+        ${
+          isSelf
+            ? `<span style="font-size:11px;color:#aaa">Cannot modify own role</span>`
+            : `<button class="admin-btn-sm admin-btn-secondary"
+                     onclick="window._toggleRole('${escAttr(u.uid)}','${escAttr(u.role || "user")}','${escAttr(u.email)}')">
+               ${u.role === "admin" ? "Demote to user" : "Promote to admin"}
              </button>`
-    }
+        }
       </td>
     </tr>`;
 }
@@ -297,12 +310,12 @@ async function loadUsers() {
   try {
     _users = await listUsers();
   } catch (err) {
-    console.warn('[admin] loadUsers failed:', err.message);
+    console.warn("[admin] loadUsers failed:", err.message);
   }
 }
 
 function showModal(html) {
-  const $c = document.getElementById('modal-container');
+  const $c = document.getElementById("modal-container");
   $c.innerHTML = `
     <div class="admin-modal-backdrop" onclick="window._closeModal()">
       <div class="admin-modal" onclick="event.stopPropagation()">
@@ -313,17 +326,17 @@ function showModal(html) {
 }
 
 function closeModal() {
-  const $c = document.getElementById('modal-container');
-  if ($c) $c.innerHTML = '';
+  const $c = document.getElementById("modal-container");
+  if ($c) $c.innerHTML = "";
 }
 
 async function openCategoryModal(slug = null) {
-  const cat = slug ? _categories.find(c => c.slug === slug) : null;
+  const cat = slug ? _categories.find((c) => c.slug === slug) : null;
   const isEdit = !!cat;
 
   showModal(`
     <div class="admin-modal-header">
-      <h3 class="admin-modal-title">${isEdit ? `Edit: ${escHtml(cat.title)}` : 'New Category'}</h3>
+      <h3 class="admin-modal-title">${isEdit ? `Edit: ${escHtml(cat.title)}` : "New Category"}</h3>
       <button class="admin-modal-close" onclick="window._closeModal()">✕</button>
     </div>
     <form id="cat-form" class="admin-form" onsubmit="window._submitCatForm(event)">
@@ -331,20 +344,20 @@ async function openCategoryModal(slug = null) {
         <div class="admin-field">
           <label>Slug (URL key) *</label>
           <input type="text" name="slug" placeholder="e.g. cloud" required
-                 pattern="[a-z0-9\\-]+" value="${escAttr(slug || '')}" ${isEdit ? 'readonly' : ''} />
+                 pattern="[a-z0-9\\-]+" value="${escAttr(slug || "")}" ${isEdit ? "readonly" : ""} />
         </div>
         <div class="admin-field">
           <label>Title *</label>
           <input type="text" name="title" placeholder="DevOps & SRE" required
-                 value="${escAttr(cat?.title || '')}" />
+                 value="${escAttr(cat?.title || "")}" />
         </div>
         <div class="admin-field admin-field-full">
           <label>Description *</label>
-          <textarea name="description" rows="2" required>${escHtml(cat?.description || '')}</textarea>
+          <textarea name="description" rows="2" required>${escHtml(cat?.description || "")}</textarea>
         </div>
         <div class="admin-field">
           <label>Accent color</label>
-          <input type="color" name="accentColor" value="${escAttr(cat?.accentColor || '#2A4535')}" />
+          <input type="color" name="accentColor" value="${escAttr(cat?.accentColor || "#2A4535")}" />
         </div>
         <div class="admin-field">
           <label>Display order</label>
@@ -352,7 +365,7 @@ async function openCategoryModal(slug = null) {
         </div>
         <div class="admin-field admin-field-full">
           <label>Tags (comma-separated)</label>
-          <input type="text" name="tags" value="${escAttr((cat?.tags || []).join(', '))}" />
+          <input type="text" name="tags" value="${escAttr((cat?.tags || []).join(", "))}" />
         </div>
         <div class="admin-field admin-field-full">
           <label>Phase Labels (JSON) *</label>
@@ -366,7 +379,7 @@ async function openCategoryModal(slug = null) {
       <div class="admin-modal-footer">
         <button type="button" class="admin-btn admin-btn-ghost" onclick="window._closeModal()">Cancel</button>
         <button type="submit" class="admin-btn admin-btn-primary">
-          ${isEdit ? 'Save changes' : 'Create category'}
+          ${isEdit ? "Save changes" : "Create category"}
         </button>
       </div>
     </form>`);
@@ -378,62 +391,81 @@ async function submitCategoryForm(e, isEdit, existingSlug) {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
   const btn = e.target.querySelector('[type="submit"]');
-  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Saving…";
+  }
 
   try {
     const phaseLabels = JSON.parse(data.phaseLabels);
     const phaseOrder = JSON.parse(data.phaseOrder);
-    const tags = data.tags.split(',').map(s => s.trim()).filter(Boolean);
+    const tags = data.tags
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     const meta = {
-      title: data.title.trim(), description: data.description.trim(),
-      accentColor: data.accentColor, tags,
-      order: parseInt(data.order) || 99, phaseLabels, phaseOrder
+      title: data.title.trim(),
+      description: data.description.trim(),
+      accentColor: data.accentColor,
+      tags,
+      order: parseInt(data.order) || 99,
+      phaseLabels,
+      phaseOrder,
     };
 
     if (isEdit) {
       await updateCategory(existingSlug, meta);
-      toast('Category updated!', 'success');
+      toast("Category updated!", "success");
     } else {
       const slug = data.slug.trim().toLowerCase();
-      if (!slug) throw new Error('Slug is required.');
+      if (!slug) throw new Error("Slug is required.");
       await createCategory(slug, meta);
-      toast('Category created!', 'success');
+      toast("Category created!", "success");
     }
 
     closeModal();
     await loadCategories();
   } catch (err) {
-    toast('Error: ' + err.message, 'error');
-    if (btn) { btn.disabled = false; btn.textContent = isEdit ? 'Save changes' : 'Create category'; }
+    toast("Error: " + err.message, "error");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = isEdit ? "Save changes" : "Create category";
+    }
   }
 }
 
 async function openTopicModal(topicId = null) {
-  const topic = topicId ? _topics.find(t => t.id === topicId) : null;
+  const topic = topicId ? _topics.find((t) => t.id === topicId) : null;
   const isEdit = !!topic;
 
-  const starterJson = JSON.stringify({
-    id: 'your-topic-id', label: 'Short label', phase: 'foundation',
-    title: 'Full topic heading',
-    why: 'One sentence explaining why this topic matters.',
-    badges: [{ t: 'Foundation', c: 'b-foundation' }],
-    prereqs: ['Previous topic'],
-    stages: [
-      { items: ['Beginner item 1'] },
-      { items: ['Intermediate item 1'] },
-      { items: ['Advanced item 1'] }
-    ],
-    projects: ['Build something real'],
-    usecases: ['Real-world scenario'],
-    mistakes: ['Common mistake to avoid'],
-    production: 'How this is used in production.',
-    ready: ['Checkpoint 1', 'Checkpoint 2'],
-    _order: 1
-  }, null, 2);
+  const starterJson = JSON.stringify(
+    {
+      id: "your-topic-id",
+      label: "Short label",
+      phase: "foundation",
+      title: "Full topic heading",
+      why: "One sentence explaining why this topic matters.",
+      badges: [{ t: "Foundation", c: "b-foundation" }],
+      prereqs: ["Previous topic"],
+      stages: [
+        { items: ["Beginner item 1"] },
+        { items: ["Intermediate item 1"] },
+        { items: ["Advanced item 1"] },
+      ],
+      projects: ["Build something real"],
+      usecases: ["Real-world scenario"],
+      mistakes: ["Common mistake to avoid"],
+      production: "How this is used in production.",
+      ready: ["Checkpoint 1", "Checkpoint 2"],
+      _order: 1,
+    },
+    null,
+    2,
+  );
 
   showModal(`
     <div class="admin-modal-header">
-      <h3 class="admin-modal-title">${isEdit ? `Edit: ${escHtml(topic.id)}` : 'New Topic'}</h3>
+      <h3 class="admin-modal-title">${isEdit ? `Edit: ${escHtml(topic.id)}` : "New Topic"}</h3>
       <button class="admin-modal-close" onclick="window._closeModal()">✕</button>
     </div>
     <form id="topic-form" class="admin-form" onsubmit="window._submitTopicForm(event)">
@@ -445,7 +477,7 @@ async function openTopicModal(topicId = null) {
       <div class="admin-modal-footer">
         <button type="button" class="admin-btn admin-btn-ghost" onclick="window._closeModal()">Cancel</button>
         <button type="submit" class="admin-btn admin-btn-primary">
-          ${isEdit ? 'Save topic' : 'Create topic'}
+          ${isEdit ? "Save topic" : "Create topic"}
         </button>
       </div>
     </form>`);
@@ -457,7 +489,10 @@ async function submitTopicForm(e, isEdit) {
   e.preventDefault();
   const raw = e.target.topicJson.value;
   const btn = e.target.querySelector('[type="submit"]');
-  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Saving…";
+  }
 
   try {
     const topicData = JSON.parse(raw);
@@ -466,15 +501,21 @@ async function submitTopicForm(e, isEdit) {
     if (!topicData.phase) throw new Error('Topic must have a "phase" field.');
 
     await setTopic(_activeSlug, topicData.id, topicData);
-    toast(`Topic "${topicData.id}" ${isEdit ? 'updated' : 'created'}!`, 'success');
+    toast(
+      `Topic "${topicData.id}" ${isEdit ? "updated" : "created"}!`,
+      "success",
+    );
     closeModal();
 
     _topics = await listTopics(_activeSlug);
-    const cat = _categories.find(c => c.slug === _activeSlug);
-    renderTopicsView(document.getElementById('admin-main'), cat);
+    const cat = _categories.find((c) => c.slug === _activeSlug);
+    renderTopicsView(document.getElementById("admin-main"), cat);
   } catch (err) {
-    toast('Error: ' + err.message, 'error');
-    if (btn) { btn.disabled = false; btn.textContent = isEdit ? 'Save topic' : 'Create topic'; }
+    toast("Error: " + err.message, "error");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = isEdit ? "Save topic" : "Create topic";
+    }
   }
 }
 
@@ -490,54 +531,65 @@ function confirmDelete(message, onConfirm) {
       <button class="admin-btn admin-btn-ghost" onclick="window._closeModal()">Cancel</button>
       <button class="admin-btn admin-btn-danger" onclick="window._doConfirm()">Delete permanently</button>
     </div>`);
-  window._doConfirm = () => { closeModal(); onConfirm(); };
+  window._doConfirm = () => {
+    closeModal();
+    onConfirm();
+  };
 }
 
 async function doDeleteTopic(topicId) {
   try {
     await deleteTopic(_activeSlug, topicId);
-    toast('Topic deleted.', 'success');
+    toast("Topic deleted.", "success");
     _topics = await listTopics(_activeSlug);
-    renderTopicsView(document.getElementById('admin-main'), _categories.find(c => c.slug === _activeSlug));
-  } catch (e) { toast('Delete failed: ' + e.message, 'error'); }
+    renderTopicsView(
+      document.getElementById("admin-main"),
+      _categories.find((c) => c.slug === _activeSlug),
+    );
+  } catch (e) {
+    toast("Delete failed: " + e.message, "error");
+  }
 }
 
 async function doDeleteCategory(slug) {
   try {
     await deleteCategory(slug);
-    toast('Category deleted.', 'success');
+    toast("Category deleted.", "success");
     _activeSlug = null;
     await loadCategories();
-    document.getElementById('admin-main').innerHTML = `
+    document.getElementById("admin-main").innerHTML = `
       <div class="admin-empty-state">
         <p class="admin-empty-text">Category deleted. Select another from the sidebar.</p>
       </div>`;
-  } catch (e) { toast('Delete failed: ' + e.message, 'error'); }
+  } catch (e) {
+    toast("Delete failed: " + e.message, "error");
+  }
 }
 
-function toast(message, type = 'info') {
-  const $c = document.getElementById('toast-container');
+function toast(message, type = "info") {
+  const $c = document.getElementById("toast-container");
   if (!$c) return;
-  const div = document.createElement('div');
+  const div = document.createElement("div");
   div.className = `admin-toast admin-toast-${type}`;
   div.textContent = message;
   $c.appendChild(div);
-  setTimeout(() => div.classList.add('admin-toast-visible'), 10);
+  setTimeout(() => div.classList.add("admin-toast-visible"), 10);
   setTimeout(() => {
-    div.classList.remove('admin-toast-visible');
+    div.classList.remove("admin-toast-visible");
     setTimeout(() => div.remove(), 300);
   }, 3500);
 }
 
-
 function escHtml(str) {
-  if (typeof str !== 'string') return String(str ?? '');
+  if (typeof str !== "string") return String(str ?? "");
   return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
-function escAttr(str) { return escHtml(String(str ?? '')); }
+function escAttr(str) {
+  return escHtml(String(str ?? ""));
+}

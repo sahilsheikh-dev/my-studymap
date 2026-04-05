@@ -1,110 +1,125 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Structured, opinionated learning roadmaps for engineering mastery."
+    />
+    <title>Learning Roadmaps</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
 
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta name="description" content="Structured, opinionated learning roadmaps for engineering mastery." />
-	<title>Learning Roadmaps</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-	<link
-		href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap"
-		rel="stylesheet" />
-	<link rel="stylesheet" href="css/styles.css" />
-</head>
-
-<body>
-	<div class="index-auth-strip" id="auth-strip">
-		<span id="auth-strip-content">
-
-			<span style="color:#aaa;">Loading…</span>
-		</span>
-	</div>
-	<header class="index-header">
-		<div class="header-inner">
-			<p class="header-eyebrow">Learning Roadmaps Collection</p>
-			<h1 class="index-title">Your <em>path</em> to<br>engineering mastery.</h1>
-			<p class="index-subtitle">
-				Structured, opinionated learning paths — each phase sequenced deliberately
-				so every topic builds on the last.
-			</p>
-		</div>
-	</header>
-	<main class="index-main">
-		<p class="section-eyebrow">Available roadmaps</p>
-		<!--
+  <body>
+    <div class="index-auth-strip" id="auth-strip">
+      <span id="auth-strip-content">
+        <span style="color: #aaa">Loading…</span>
+      </span>
+    </div>
+    <header class="index-header">
+      <div class="header-inner">
+        <p class="header-eyebrow">Learning Roadmaps Collection</p>
+        <h1 class="index-title">
+          Your <em>path</em> to<br />engineering mastery.
+        </h1>
+        <p class="index-subtitle">
+          Structured, opinionated learning paths — each phase sequenced
+          deliberately so every topic builds on the last.
+        </p>
+      </div>
+    </header>
+    <main class="index-main">
+      <p class="section-eyebrow">Available roadmaps</p>
+      <!--
 				ROADMAP GRID — populated by JS from Firestore.
 				Shows a loading skeleton first, then real cards.
 				-->
-		<div class="roadmap-grid" id="roadmap-grid">
+      <div class="roadmap-grid" id="roadmap-grid">
+        <div
+          style="
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--ink-muted);
+            padding: var(--sp-8);
+            grid-column: 1/-1;
+          "
+        >
+          Loading roadmaps…
+        </div>
+      </div>
+    </main>
+    <footer class="index-footer">
+      Learning Roadmaps &nbsp;·&nbsp; Powered by Rebdek
+    </footer>
+    <script type="module">
+      import { onAuthChange, signOut, isAdmin } from "./js/auth.js";
+      import { listCategories } from "./js/db.js";
 
-			<div
-				style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);padding:var(--sp-8);grid-column:1/-1;">
-				Loading roadmaps…
-			</div>
-		</div>
-	</main>
-	<footer class="index-footer">
-		Learning Roadmaps &nbsp;·&nbsp; Powered by Rebdek
-	</footer>
-	<script type="module">
-		import { onAuthChange, signOut, isAdmin } from './js/auth.js';
-		import { listCategories } from './js/db.js';
+      const $strip = document.getElementById("auth-strip-content");
 
-		const $strip = document.getElementById('auth-strip-content');
-
-		onAuthChange(user => {
-			if (!user) {
-				$strip.innerHTML = `<a href="login.html">Sign in to track progress</a>`;
-			} else {
-				const adminLink = user.role === 'admin'
-					? `<a href="admin.html" style="margin-left:8px;color:var(--amber);">⚙ Admin Panel</a>`
-					: '';
-				$strip.innerHTML = `
+      onAuthChange((user) => {
+        if (!user) {
+          $strip.innerHTML = `<a href="login.html">Sign in to track progress</a>`;
+        } else {
+          const adminLink =
+            user.role === "admin"
+              ? `<a href="admin.html" style="margin-left:8px;color:var(--amber);">⚙ Admin Panel</a>`
+              : "";
+          $strip.innerHTML = `
 			      <span>${escHtml(user.email)}</span>
 			      ${adminLink}
 			      <button onclick="window._signOut()" style="margin-left:8px;">Sign out</button>`;
-				window._signOut = () => signOut();
-			}
-		});
+          window._signOut = () => signOut();
+        }
+      });
 
-		const $grid = document.getElementById('roadmap-grid');
+      const $grid = document.getElementById("roadmap-grid");
 
-		async function loadAndRenderCategories() {
-			try {
-				const categories = await listCategories();
+      async function loadAndRenderCategories() {
+        try {
+          const categories = await listCategories();
 
-				if (!categories.length) {
-					$grid.innerHTML = `
+          if (!categories.length) {
+            $grid.innerHTML = `
 			        <div style="grid-column:1/-1;font-size:13px;color:var(--ink-muted);padding:var(--sp-8);text-align:center;">
 			          No roadmaps yet. <a href="admin.html" style="color:var(--indigo);">Add one in the admin panel →</a>
 			        </div>`;
-					return;
-				}
+            return;
+          }
 
-				$grid.innerHTML = categories.map((cat, i) => {
-					const accentColor = cat.accentColor || '#2A4535';
-					const tags = (cat.tags || []).map((t, ti) => {
-						const tc = (cat.tagColors && cat.tagColors[ti])
-							? cat.tagColors[ti]
-							: { bg: '#eee', tc: '#333' };
-						return `<span class="tag" style="background:${escAttr(tc.bg)};color:${escAttr(tc.tc)}">${escHtml(t)}</span>`;
-					}).join('');
+          $grid.innerHTML = categories
+            .map((cat, i) => {
+              const accentColor = cat.accentColor || "#2A4535";
+              const tags = (cat.tags || [])
+                .map((t, ti) => {
+                  const tc =
+                    cat.tagColors && cat.tagColors[ti]
+                      ? cat.tagColors[ti]
+                      : { bg: "#eee", tc: "#333" };
+                  return `<span class="tag" style="background:${escAttr(tc.bg)};color:${escAttr(tc.tc)}">${escHtml(t)}</span>`;
+                })
+                .join("");
 
-					return `
+              return `
 			        <a class="roadmap-card" href="details.html?data=${encodeURIComponent(cat.slug)}">
 			          <div class="card-accent" style="background:${escAttr(accentColor)};"></div>
-			          <p class="card-number">${String(i + 1).padStart(2, '0')}</p>
+			          <p class="card-number">${String(i + 1).padStart(2, "0")}</p>
 			          <h2 class="card-title">${escHtml(cat.title)}</h2>
-			          <p class="card-desc">${escHtml(cat.description || '')}</p>
+			          <p class="card-desc">${escHtml(cat.description || "")}</p>
 			          <div class="card-tags">${tags}</div>
 			          <span class="card-arrow" aria-hidden="true">↗</span>
 			        </a>`;
-				}).join('');
+            })
+            .join("");
 
-
-				$grid.innerHTML += `
+          $grid.innerHTML += `
 			      <div class="add-card" id="add-placeholder" style="display:none">
 			        <div class="add-card-icon">+</div>
 			        <div>
@@ -112,33 +127,34 @@
 			          <p class="add-card-desc">Go to the <a href="admin.html" style="color:var(--indigo);">Admin Panel</a> to create a new category.</p>
 			        </div>
 			      </div>`;
-
-			} catch (err) {
-				$grid.innerHTML = `
+        } catch (err) {
+          $grid.innerHTML = `
 			      <div style="grid-column:1/-1;font-size:13px;color:var(--red);padding:var(--sp-8);">
 			        Error loading roadmaps: ${escHtml(err.message)}<br/>
 			        Make sure Firebase is configured and Firestore security rules allow reads.
 			      </div>`;
-			}
-		}
+        }
+      }
 
+      onAuthChange((user) => {
+        const placeholder = document.getElementById("add-placeholder");
+        if (placeholder && user && user.role === "admin") {
+          placeholder.style.display = "";
+        }
+      });
 
-		onAuthChange(user => {
-			const placeholder = document.getElementById('add-placeholder');
-			if (placeholder && user && user.role === 'admin') {
-				placeholder.style.display = '';
-			}
-		});
+      loadAndRenderCategories();
 
-
-		loadAndRenderCategories();
-
-
-		function escHtml(s) {
-			return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-		}
-		function escAttr(s) { return escHtml(s); }
-	</script>
-</body>
-
+      function escHtml(s) {
+        return String(s ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+      function escAttr(s) {
+        return escHtml(s);
+      }
+    </script>
+  </body>
 </html>
