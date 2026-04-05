@@ -29,9 +29,11 @@ export async function createUserProfile({ uid, email, displayName }) {
     await setDoc(doc(db, "users", uid), {
       uid,
       email,
-      displayName: displayName ?? "",
+      displayName,
       role: "user",
+      status: "active",
       createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     });
 
     console.log("[createUserProfile] user created:", uid);
@@ -199,4 +201,17 @@ export async function saveProgress(uid, categorySlug, checkboxMap) {
   } catch (err) {
     console.warn("[db] saveProgress failed:", err.message);
   }
+}
+
+export async function setUserStatus(uid, status) {
+  const allowed = ["active", "disabled", "blocked"];
+
+  if (!allowed.includes(status)) {
+    throw new Error("[db] Invalid status");
+  }
+
+  await updateDoc(doc(db, "users", uid), {
+    status,
+    updatedAt: serverTimestamp(),
+  });
 }

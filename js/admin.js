@@ -1,4 +1,10 @@
-import { requireAuth, isAdmin, signOut, refreshCurrentUser } from "./auth.js";
+import {
+  requireAuth,
+  isAdmin,
+  signOut,
+  refreshCurrentUser,
+  sendPasswordReset,
+} from "./auth.js";
 import {
   listCategories,
   getCategory,
@@ -10,6 +16,7 @@ import {
   deleteTopic,
   listUsers,
   setUserRole,
+  setUserStatus,
 } from "./db.js";
 
 let _categories = [];
@@ -272,38 +279,95 @@ function renderUsersView($main) {
       toast("Error updating role: " + e.message, "error");
     }
   };
+
+  window._setStatus = async (uid, status) => {
+    if (!confirm(`Set status to ${status}?`)) return;
+
+    await setUserStatus(uid, status);
+    toast("Status updated", "success");
+
+    _users = await listUsers();
+    renderUsersView($main);
+  };
+
+  window._resetPassword = async (email) => {
+    if (!confirm(`Send reset email to ${email}?`)) return;
+
+    await sendPasswordReset(email);
+    toast("Password reset email sent", "success");
+  };
 }
 
 function renderUserRow(u) {
   const isSelf = u.uid === _currentUser.uid;
-  const joinedDate = u.createdAt?.toDate
-    ? u.createdAt.toDate().toLocaleDateString()
-    : "—";
 
   return `
     <tr>
-      <td>
-        ${escHtml(u.email)}
-        ${isSelf ? '<span style="font-size:10px;background:#EEEDFE;color:#3C3489;padding:1px 6px;border-radius:99px;margin-left:6px;">you</span>' : ""}
-      </td>
+      <td>${escHtml(u.email)}</td>
       <td>${escHtml(u.displayName || "—")}</td>
+
       <td>
-        <span class="admin-role-badge admin-role-${u.role || "user"}">
-          ${escHtml(u.role || "user")}
+        <span class="admin-role-badge admin-role-${u.role}">
+          ${u.role}
         </span>
       </td>
-      <td style="font-size:12px;color:#888">${joinedDate}</td>
+
+      <td>
+        <span class="admin-status-badge status-${u.status || "active"}">
+          ${u.status || "active"}
+        </span>
+      </td>
+
       <td>
         ${
           isSelf
-            ? `<span style="font-size:11px;color:#aaa">Cannot modify own role</span>`
-            : `<button class="admin-btn-sm admin-btn-secondary"
-                     onclick="window._toggleRole('${escAttr(u.uid)}','${escAttr(u.role || "user")}','${escAttr(u.email)}')">
-               ${u.role === "admin" ? "Demote to user" : "Promote to admin"}
-             </button>`
+            ? "—"
+            : `
+          <div class="admin-user-actions">
+
+            <!-- ROLE -->
+            <div class="action-group">
+              <button class="admin-btn admin-btn-secondary"
+                onclick="_toggleRole('${u.uid}','${u.role}','${u.email}')">
+                ${u.role === "admin" ? "Demote" : "Promote"}
+              </button>
+            </div>
+
+            <!-- STATUS -->
+            <div class="action-group">
+              ${
+                u.status !== "active"
+                  ? `<button class="admin-btn admin-btn-primary"
+                      onclick="_setStatus('${u.uid}','active')">
+                      Enable
+                    </button>`
+                  : ""
+              }
+
+              ${
+                u.status !== "blocked"
+                  ? `<button class="admin-btn admin-btn-danger"
+                      onclick="_setStatus('${u.uid}','blocked')">
+                      Block
+                    </button>`
+                  : ""
+              }
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="action-group">
+              <button class="admin-btn admin-btn-ghost"
+                onclick="_resetPassword('${u.email}')">
+                Reset
+              </button>
+            </div>
+
+          </div>
+        `
         }
       </td>
-    </tr>`;
+    </tr>
+  `;
 }
 
 async function loadUsers() {

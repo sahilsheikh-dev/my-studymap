@@ -33,6 +33,18 @@ async function _resolveUser(firebaseUser) {
     }
   } catch (err) {
     console.error("[auth] _resolveUser: role lookup failed:", err.message);
+    throw err;
+  }
+
+  const status = (await getUserProfile(firebaseUser.uid)?.status) || "active";
+
+  if (status !== "active") {
+    await _firebaseSignOut(auth);
+    throw new Error(
+      status === "blocked"
+        ? "Your account has been blocked by admin."
+        : "Your account has been disabled.",
+    );
   }
 
   _currentUser = {
@@ -40,6 +52,7 @@ async function _resolveUser(firebaseUser) {
     email: firebaseUser.email,
     displayName: firebaseUser.displayName || firebaseUser.email,
     role,
+    status,
     photoURL: firebaseUser.photoURL || null,
   };
 
@@ -159,18 +172,29 @@ export function onAuthChange(callback) {
 }
 
 export function requireAuth(redirectUrl = "login.html") {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error("Auth timeout"));
+    }, 5000);
+
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
+      clearTimeout(timeout);
       unsub();
-      if (!fbUser) {
-        const returnTo = encodeURIComponent(
-          window.location.pathname + window.location.search,
-        );
-        window.location.href = `${redirectUrl}?redirect=${returnTo}`;
-        return;
+
+      try {
+        if (!fbUser) {
+          const returnTo = encodeURIComponent(
+            window.location.pathname + window.location.search,
+          );
+          window.location.href = `${redirectUrl}?redirect=${returnTo}`;
+          return;
+        }
+
+        const user = await _resolveUser(fbUser);
+        resolve(user);
+      } catch (err) {
+        reject(err);
       }
-      const user = await _resolveUser(fbUser);
-      resolve(user);
     });
   });
 }
